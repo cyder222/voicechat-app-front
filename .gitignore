@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/workers/node_modules
 /.pnp
 .pnp.js
 
@@ -12,12 +13,14 @@
 /.next/
 /out/
 
+# linaria
+/.linaria-cache
+
 # production
 /build
 
 # misc
 .DS_Store
-*.pem
 
 # debug
 npm-debug.log*
@@ -30,5 +33,7 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# vercel
 .vercel
+.env
+
+/public/workers
