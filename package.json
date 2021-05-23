@@ -8,19 +8,27 @@
     "start": "next start"
   },
   "dependencies": {
+    "@babel/preset-typescript": "^7.13.0",
+    "@material-ui/core": "^4.11.3",
+    "@reduxjs/toolkit": "^1.5.1",
+    "@zeit/next-css": "^1.0.1",
+    "dotenv": "^9.0.2",
+    "dotenv-webpack": "^7.0.2",
     "next": "10.2.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "standardized-audio-context": "^25.1.9",
-    "@babel/preset-typescript": "^7.13.0",
-    "@material-ui/core": "^4.11.3",
-    "@zeit/next-css": "^1.0.1"
+    "react-redux": "^7.2.4",
+    "redux": "^4.1.0",
+    "redux-logger": "^3.0.6",
+    "standardized-audio-context": "^25.1.9"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.13.12",
     "@types/node": "14.14.25",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "@types/react-redux": "^7.1.16",
+    "@types/redux-logger": "^3.0.8",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "eslint": "^7.1.0",

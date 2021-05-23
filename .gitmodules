@@ -1,0 +1,3 @@
+[submodule "codegen/voicechat-alphas"]
+	path = codegen/voicechat-alphas
+	url = https://github.com/cyder222/voicechat-alphas
