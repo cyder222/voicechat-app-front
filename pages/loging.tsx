@@ -14,6 +14,7 @@ export default function Loging() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
         login page
+      <a href="http://myapp.test.com/auth/google_oauth2">ログイン</a>
       <footer className={styles.footer}>
         <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"

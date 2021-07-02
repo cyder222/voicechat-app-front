@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next -p 3001",
     "build": "next build",
     "start": "next start"
   },
@@ -20,7 +20,9 @@
     "react-redux": "^7.2.4",
     "redux": "^4.1.0",
     "redux-logger": "^3.0.6",
-    "standardized-audio-context": "^25.1.9"
+    "skyway-js": "^4.4.1",
+    "standardized-audio-context": "^25.1.9",
+    "voice-activity-detection": "^0.0.5"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.13.12",

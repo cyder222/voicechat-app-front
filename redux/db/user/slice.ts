@@ -1,15 +1,16 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { asyncFetchCurrentUser } from "./async-actions";
 
 export type UserState = {
+  id: string;
   name: string;
-  nickname: string;
-  apiKey: string;
+  nickname?: string;
 };
 
 export const initialState: UserState = {
+  id: "",
   name: "",
   nickname: "",
-  apiKey: "",
 };
 
 const userSlice = createSlice({
@@ -24,10 +25,13 @@ const userSlice = createSlice({
       ...state,
       nickname: action.payload,
     };},
-    updateApiKey: (state, action: PayloadAction<string>) => {return {
-        ...state,
-        apiKey: action.payload,
-      };},
+  },
+  extraReducers: (builder) => {
+    builder.addCase(asyncFetchCurrentUser.fulfilled, (state, action) => {
+      const user = action.payload.user;
+      user.name && (state.name = user.name);
+      user.id && (state.id = user.id);
+    });
   },
 });
 

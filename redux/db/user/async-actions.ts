@@ -1,19 +1,19 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { getVoiceChatApi } from "../../../api/index";
+import { User } from "../../../codegen/api/fetch";
 
 const sleep = (microSecond: number) =>
   {return new Promise((resolve) => {return setTimeout(resolve, microSecond);});};
 
-export const asyncFetchUser = createAsyncThunk<number, number>(
-  "counter/asyncIncrementCounter",
-  async (arg: number): Promise<number> => {
-    await sleep(1000);
+export interface fetchUserPayload{
+  user: User;
+}
+export const asyncFetchCurrentUser = createAsyncThunk<fetchUserPayload, string>(
+  "db/user/asyncFetchUser",
+  async (apiKey: string): Promise<fetchUserPayload> => {
+    const api = getVoiceChatApi(apiKey);
+    const user = await api.getUsersCurrent();
 
-    // エラーが起きた際の動きを確認する為、一定確率でエラーが起きるようにしてある
-    const randNum = Math.floor(Math.random() * Math.floor(10));
-    if (randNum === 0 || randNum === 5 || randNum === 1) {
-      return Promise.reject(new Error("asyncIncrementCounter error"));
-    }
-
-    return arg;
+    return { user: user };
   },
 );

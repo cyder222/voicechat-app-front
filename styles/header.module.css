@@ -1,0 +1,9 @@
+.headerLogo{
+    width: 100px;
+    height: 50px;
+}
+
+.headerContainer{
+    display: flex;
+    flex-direction: row;
+}

@@ -5,8 +5,8 @@ import createStore from "../redux/create-store";
 
 function MyApp({ Component, pageProps }: AppProps):JSX.Element {
   return  <Provider store={createStore()}>
-       <Component {...pageProps} />;
-  </Provider>;
+            <Component {...pageProps} />;
+          </Provider>;
 }
 
 export default MyApp;
