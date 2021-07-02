@@ -1,23 +1,32 @@
-This is a VoiceChat project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
 ## Getting Started
 
-First, run the development server:
+### generate your api code
+APIの定義からAPIのコードを自動生成しています。
+APIの定義が更新されたら次のコードを打ってください
+
+!! 初回のみ
+```
+docker pull openapitools/openapi-generator-cli
+```
+
 
 ```bash
-npm run dev
-# or
+cd codegen
+bash script.sh
+```
+
+### create .env file on top
+トップディレクトリ配下に.envを置いてください
+その中に
+```
+DEV_MODE="development"
+```
+を作成してください
+
+### フロントを起動する
+```bash
 yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-
-### OpenAPI Generator
-This project use OpenAPI generator.
-pull docker image to your pc.
-```
-docker pull openapitools/openapi-generator-cli
-```
-move to codegen dir and run scripts.sh
-```
