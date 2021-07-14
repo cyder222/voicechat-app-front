@@ -6,7 +6,10 @@ import { Button,
     Typography,
     makeStyles } from "@material-ui/core";
 import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
+import LoginController from "../../components/auth/login-controller";
+import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";
 import { useUserState } from "../../redux/db/user/selectors";
 
 const useStyles = makeStyles((theme) => {return {
@@ -30,17 +33,19 @@ export default function EnterRoom(): JSX.Element {
     const userState = useUserState();
     const router = useRouter();
     const classes = useStyles();
+    const dispatch = useDispatch();
     const localStreamRef = useRef<HTMLVideoElement>(null);
     useEffect(()=>{
         (async (): Promise<void>=>{
-            const user = userState.user;
-            if(user.id == null) {
-                router.push("/login");
+            const token = LoginController.getInfomation().authToken;
+            if(token == null) {
+                router.push("/loging");
                 return;
             }
+            await dispatch(asyncFetchCurrentUser(token!));
             await localStreamSetting();
         })();
-    },[router, userState]);
+    },[router, userState,dispatch, localStreamRef]);
 
     const localStreamSetting = async (): Promise<void> => {
         if(localStreamRef == null) return;
@@ -48,7 +53,7 @@ export default function EnterRoom(): JSX.Element {
         localStreamRef.current.srcObject = await navigator.mediaDevices.getUserMedia(
           {
             audio: true,
-            video: false,
+            video: true,
           },
         );
         await localStreamRef.current.play();

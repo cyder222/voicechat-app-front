@@ -7,7 +7,6 @@ export interface configConstants {
     }
 }
 
-
 const prod: configConstants = { url: { API_BASE_URL: "https://myapp.herokuapp.com" }, key: { SKYWAY_APIKEY:  "f0052d34-7441-45ef-abcb-2cb0ac9682c5" } };
 
 const stage: configConstants = { url: { API_BASE_URL: "https://myapp.heroku-stage-app.com" }, key: { SKYWAY_APIKEY:  "f0052d34-7441-45ef-abcb-2cb0ac9682c5" } };
