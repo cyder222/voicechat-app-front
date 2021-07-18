@@ -1,27 +1,28 @@
-// いい実装がわからなかったので、APIKeyの保存については、reduxと別途行う。
-// 将来的には、reduxのmiddleware側で行うなどした方がよいと思う 
+// nextjsではcookieが良さそうなので、cookieに保存するようにした
+import cookieCutter from "cookie-cutter";
+
 export interface LoginControllerParameter {
     uid: string | null;
     authToken: string | null;
 }
 export class LoginController {
     public static setAuthToken(token: string): void{
-        localStorage.setItem("LoginControllerAuthToken", token);
+        cookieCutter.set("LoginControllerAuthToken", token);
     }
 
     public static setRefreshToken(token: string): void
     {
-        localStorage.setItem("LoginControllerRefreshToken", token);
+        cookieCutter.set("LoginControllerRefreshToken", token);
     }
 
     public static setUid(uid: string): void{
-        localStorage.setItem("LoginControllerUid", uid);
+        cookieCutter.set("LoginControllerUid", uid);
     }
 
     public static getInfomation(): LoginControllerParameter{
         return {
-            uid: localStorage.getItem("LoginControllerUid"),
-            authToken: localStorage.getItem("LoginControllerAuthToken"), 
+            uid: cookieCutter.get("LoginControllerUid"),
+            authToken: cookieCutter.get("LoginControllerAuthToken"),
         };
     }
 }
