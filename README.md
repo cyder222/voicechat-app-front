@@ -1,5 +1,3 @@
-## Getting Started
-
 ### generate your api code
 APIの定義からAPIのコードを自動生成しています。
 APIの定義が更新されたら次のコードを打ってください
