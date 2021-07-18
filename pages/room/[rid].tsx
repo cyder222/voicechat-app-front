@@ -68,6 +68,9 @@ export default function Room(): JSX.Element {
     
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               room.on("stream", async (stream: any) => {
+                if(stream.peerId == userState.user.id){
+                  return;
+                }
                 // gridListTitle
                 const gridListTitleRoot = document.createElement("li");
                 gridListTitleRoot.setAttribute("id", stream.peerId);
