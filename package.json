@@ -5,11 +5,13 @@
   "scripts": {
     "dev": "next -p 3001",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "gen:typescript-fetch": "npx openapi-generator generate -i ./codegen/voicechat-alphas/reference/rooms.v1.yaml -g typescript-fetch -o ./codegen/api/fetch"
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.13.0",
     "@material-ui/core": "^4.11.3",
+    "@openapitools/openapi-generator-cli": "^2.3.7",
     "@reduxjs/toolkit": "^1.5.1",
     "@zeit/next-css": "^1.0.1",
     "cookie-cutter": "^0.2.0",
