@@ -3,6 +3,7 @@ import { asyncFetchCurrentUser } from "./async-actions";
 
 export type UserState = {
   id: string;
+  uid: string;
   name: string;
   nickname?: string;
 };
@@ -10,6 +11,7 @@ export type UserState = {
 export const initialState: UserState = {
   id: "",
   name: "",
+  uid: "",
   nickname: "",
 };
 
@@ -30,7 +32,8 @@ const userSlice = createSlice({
     builder.addCase(asyncFetchCurrentUser.fulfilled, (state, action) => {
       const user = action.payload.user;
       user.name && (state.name = user.name);
-      user.id && (state.id = user.id);
+      user.id && (state.id = user.id.toString());
+      user.uid && (state.uid = user.uid);
     });
   },
 });

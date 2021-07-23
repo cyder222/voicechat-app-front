@@ -68,9 +68,16 @@ export default function Room(): JSX.Element {
     
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               room.on("stream", async (stream: any) => {
-                if(stream.peerId == userState.user.id){
+                if(stream.peerId == userState.user.uid){
                   return;
                 }
+                const authToken =  LoginController.getInfomation().authToken;
+                if(authToken == null) {
+                    router.push("/login/");
+                }
+                const api = getVoiceChatApi(authToken!);
+                const user = await api.getApiUsersUserId({ userId: stream.peerId });
+                if(!user) return;
                 // gridListTitle
                 const gridListTitleRoot = document.createElement("li");
                 gridListTitleRoot.setAttribute("id", stream.peerId);
@@ -108,13 +115,6 @@ export default function Room(): JSX.Element {
                 gridListTitle.setAttribute("class", "MuiGridListTileBar-title");
           
                 console.log(stream.peerId);
-                const authToken =  LoginController.getInfomation().authToken;
-                if(authToken == null) {
-                    router.push("/login/");
-                }
-                const api = getVoiceChatApi(authToken!);
-                console.log(stream.peerId); 
-                const user = await api.getApiUsersUserId({ userId: stream.peerId });
                 const userName = document.createTextNode(user.name);
                 gridListTitle.append(userName);
                 gridListTitleWrap.append(gridListTitle);
@@ -206,8 +206,9 @@ export default function Room(): JSX.Element {
             const room = await api.getRoomsRoomId({ roomId: roomId![0] });
             setRoomName(room.title);
             const currentUser = userState.user;
-            console.log(`userid: ${currentUser.id}`);
-            setPeer(new Peer(currentUser.id.toString(), { key: config.key.SKYWAY_APIKEY }));
+            console.log(`user_uid: ${currentUser.uid}`);
+            if(currentUser.uid === "") return;
+            setPeer(new Peer(currentUser.uid.toString(), { key: config.key.SKYWAY_APIKEY }));
         })();
        
     },[roomId, router, userState, Peer]);
