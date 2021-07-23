@@ -1,3 +1,4 @@
+#!/bin/sh -ex
 git submodule update --init --recursive
 yarn install
 yarn gen:typescript-fetch
