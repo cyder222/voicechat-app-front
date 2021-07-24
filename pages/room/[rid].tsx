@@ -94,7 +94,7 @@ export default function Room(): JSX.Element {
                 gridListTitleRoot.append(gridListTitleVideo);
                 // video
                 const newVideo = document.createElement("video");
-                newVideo.setAttribute("id", "js-local-stream");
+                newVideo.setAttribute("id", `js-local-stream-${stream.peerId}`);
                 newVideo.srcObject = stream;
                 newVideo.playsInline = true;
                 newVideo.setAttribute("width", "100%");
@@ -125,11 +125,14 @@ export default function Room(): JSX.Element {
               // for closing room members
         room.on("peerLeave", (peerId) => {
             const remoteVideoContainer = document.getElementById(`${peerId}`);
-      
-            remoteVideoContainer?.children[0].children[0].srcObject
-              .getTracks()
-              .forEach((track) => {return track.stop();});
-            remoteVideoContainer.children[0].children[0].srcObject = null;
+            const remoteVideoElement = document.querySelector<HTMLVideoElement>(`#js-local-stream-${peerId}`);
+
+            if(remoteVideoElement == null) return;
+            if(remoteVideoContainer == null) return;
+            const remoteStream = remoteVideoElement.srcObject as MediaStream;
+            remoteStream.getTracks()
+              .forEach((track: any) => {return track.stop();});
+            remoteVideoElement.srcObject = null;
             remoteVideoContainer.remove();
       
             console.log(`=== ${peerId} left ===\n`);
@@ -140,10 +143,12 @@ export default function Room(): JSX.Element {
             console.log("== You left ===\n");
             jsRemoteStream?.querySelectorAll("li:not(.my-video)")
               .forEach((remoteVideoContainer) => {
-                remoteVideoContainer.children[0].children[0].srcObject
-                  .getTracks()
-                  .forEach((track) => {return track.stop();});
-                remoteVideoContainer.children[0].children[0].srcObject = null;
+                const remoteVideoElement =  remoteVideoContainer.children[0].children[0] as HTMLVideoElement;
+                if(remoteVideoElement == null) return;
+                const remoteStream = remoteVideoElement.srcObject as MediaStream;
+                remoteStream.getTracks()
+                  .forEach((track: any) => {return track.stop();});
+                remoteVideoElement.srcObject = null;
                 remoteVideoContainer.remove();
               });
           });
