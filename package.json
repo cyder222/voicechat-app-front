@@ -6,7 +6,7 @@
     "dev": "next -p 3001",
     "build": "next build",
     "start": "next start",
-    "gen:typescript-fetch": "openapi-generator-cli generate -i ./codegen/voicechat-alphas/reference/rooms.v1.yaml -g typescript-fetch -o ./codegen/api/fetch"
+    "gen:typescript-fetch": "openapi-generator-cli generate -i codegen/voicechat-alphas/reference/rooms.v1.yaml -g typescript-fetch -o codegen/api/fetch"
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.13.0",
