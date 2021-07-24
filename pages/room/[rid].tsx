@@ -7,7 +7,7 @@ import { Button,
 import { useRouter  } from "next/router";
 import { useDispatch } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
-import { getVoiceChatApi } from "../../api/index";
+import { getVoiceChatApi } from "../../api-fetch/index";
 import { LoginController } from "../../components/auth/login-controller";
 import { config } from "../../config/constants";
 import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";

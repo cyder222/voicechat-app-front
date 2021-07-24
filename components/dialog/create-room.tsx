@@ -6,7 +6,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import { useRouter } from "next/router";
 import React, { FormEvent, VFC } from "react";
-import { getVoiceChatApi } from "../../api";
+import { getVoiceChatApi } from "../../api-fetch";
 import LoginController from "../auth/login-controller";
 
 export interface createRoomDialogProps{

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getVoiceChatApi } from "../../../api/index";
+import { getVoiceChatApi } from "../../../api-fetch/index";
 import { User } from "../../../codegen/api/fetch";
 
 const sleep = (microSecond: number) =>
