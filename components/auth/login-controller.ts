@@ -1,5 +1,4 @@
-// nextjsではcookieが良さそうなので、cookieに保存するようにした
-import cookieCutter from "cookie-cutter";
+import { getCookieByKey, setCookieByKeyValue } from "../../util/cookie";
 
 export interface LoginControllerParameter {
     uid: string | null;
@@ -7,22 +6,22 @@ export interface LoginControllerParameter {
 }
 export class LoginController {
     public static setAuthToken(token: string): void{
-        cookieCutter.set("LoginControllerAuthToken", token);
+        setCookieByKeyValue("LoginControllerAuthToken", token);
     }
 
     public static setRefreshToken(token: string): void
     {
-        cookieCutter.set("LoginControllerRefreshToken", token);
+        setCookieByKeyValue("LoginControllerRefreshToken", token);
     }
 
     public static setUid(uid: string): void{
-        cookieCutter.set("LoginControllerUid", uid);
+        setCookieByKeyValue("LoginControllerUid", uid);
     }
 
     public static getInfomation(): LoginControllerParameter{
         return {
-            uid: cookieCutter.get("LoginControllerUid"),
-            authToken: cookieCutter.get("LoginControllerAuthToken"),
+            uid: getCookieByKey("LoginControllerUid"),
+            authToken: getCookieByKey("LoginControllerAuthToken"),
         };
     }
 }
