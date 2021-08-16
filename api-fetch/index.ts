@@ -5,4 +5,3 @@ const configuration: ConfigurationParameters = { basePath: config.url.API_BASE_U
 export const getVoiceChatApi = (apiKey?: string): DefaultApi => {
     return new DefaultApi(new Configuration({ ...configuration, apiKey: `Bearer ${apiKey}` }) );
 };
-
