@@ -67,7 +67,7 @@ export default function Home(): JSX.Element {
         <HeaderComponent userState={useUserState().user}></HeaderComponent>
         <h1>Prototype of voicechat system</h1>
         
-
+        <h3>{process.env.DEV_MODE}</h3>
         <h1>2. PLEASE ENTER CODE or CREATE NEW ROOM</h1>
           <OkCancelButtonDialogComponent 
             buttonText="ルームを作成する"
