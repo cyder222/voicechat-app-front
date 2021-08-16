@@ -44,7 +44,7 @@ export default function Room(): JSX.Element {
         }
         const authToken =  LoginController.getInfomation().authToken;
         if(authToken == null) {
-            router.push("/login/");
+            router.push("/loging/");
         }
         if(roomId == null) {
             router.push("/");
@@ -73,7 +73,7 @@ export default function Room(): JSX.Element {
                 }
                 const authToken =  LoginController.getInfomation().authToken;
                 if(authToken == null) {
-                    router.push("/login/");
+                    router.push("/loging/");
                 }
                 const api = getVoiceChatApi(authToken!);
                 const user = await api.getApiUsersUserId({ userId: stream.peerId });
@@ -196,14 +196,14 @@ export default function Room(): JSX.Element {
         (async (): Promise<void>=>{
             const authToken =  LoginController.getInfomation().authToken;
             if(authToken == null) {
-                router.push("/login/");
+                router.push("/logign/");
             }
             if(roomId == null) {
                 router.push("/");
             }
             const token = LoginController.getInfomation().authToken;
             if(token == null) {
-                router.push("/loging");
+                router.push("/loging/");
                 return;
             }
             await dispatch(asyncFetchCurrentUser(token!));

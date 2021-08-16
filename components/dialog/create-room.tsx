@@ -35,7 +35,7 @@ export const OkCancelButtonDialogComponent: VFC<createRoomDialogProps> = (props:
   const createRoom = async (event: any): Promise<void> => {
     event.preventDefault();
     if(LoginController.getInfomation().authToken == null) {
-      router.push("/login/");
+      router.push("/logging/");
       return;
     }
     const apiKey: string = LoginController.getInfomation().authToken!;
