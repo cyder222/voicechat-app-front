@@ -27,6 +27,7 @@
     "redux-logger": "^3.0.6",
     "skyway-js": "^4.4.1",
     "standardized-audio-context": "^25.1.9",
+    "styled-components": "^5.3.1",
     "voice-activity-detection": "^0.0.5"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "@types/redux-logger": "^3.0.8",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
+    "babel-plugin-styled-components": "^1.13.2",
     "eslint": "^7.1.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-react": "^7.20.0",
