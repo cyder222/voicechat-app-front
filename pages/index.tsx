@@ -12,9 +12,8 @@ import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import React, { useEffect } from "react";
 import { LoginController } from "../components/auth/login-controller";
-import { OkCancelButtonDialogComponent } from "../components/dialog/create-room";
 import { HeaderComponent } from "../components/header";
-import { config } from "../config/constants";
+import CreateRoomDialog  from "../components/molecules/create-room-dialog/create-room-dialog";
 import { asyncFetchCurrentUser } from "../redux/db/user/async-actions";
 import { useUserState } from "../redux/db/user/selectors";
 import styles from "../styles/Home.module.css";
@@ -69,7 +68,7 @@ export default function Home(): JSX.Element {
         
         <h3>{process.env.DEV_MODE}</h3>
         <h1>2. PLEASE ENTER CODE or CREATE NEW ROOM</h1>
-          <OkCancelButtonDialogComponent 
+          <CreateRoomDialog 
             buttonText="ルームを作成する"
             callBackAfterCreateRoom={(roomId: string)=>{
               if(roomId == null){
@@ -77,7 +76,7 @@ export default function Home(): JSX.Element {
               }
               router.push(`/enter-room/${roomId}/`);
             }}
-          ></OkCancelButtonDialogComponent>
+          ></CreateRoomDialog>
           <form onSubmit={(e: React.FormEvent<HTMLFormElement>): void=>{
             e.preventDefault();
             if(stateRoomId === ""){

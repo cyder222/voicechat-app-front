@@ -51,7 +51,7 @@ export default function Room(): JSX.Element {
         }
         const api = getVoiceChatApi(authToken!);
 
-        await api.postRoomsUsers({ roomId: roomId![0] }); 
+        await api.postRoomsUsers({ roomId:  (typeof(roomId!) == typeof(["",""]) ? roomId![0] : roomId!) as string }); 
         let room;
         peer.on("open", (id) => {
             room = peer.joinRoom(roomId, {
@@ -208,7 +208,7 @@ export default function Room(): JSX.Element {
             }
             await dispatch(asyncFetchCurrentUser(token!));
             const api = getVoiceChatApi(authToken!);
-            const room = await api.getRoomsRoomId({ roomId: roomId![0] });
+            const room = await api.getRoomsRoomId({ roomId: (typeof(roomId!) == typeof(["",""]) ? roomId![0] : roomId!) as string });
             setRoomName(room.title);
             const currentUser = userState.user;
             console.log(`user_uid: ${currentUser.uid}`);
