@@ -11,27 +11,20 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import React, { useEffect } from "react";
+import styled from "styled-components";
 import { LoginController } from "../components/auth/login-controller";
-import { HeaderComponent } from "../components/header";
 import CreateRoomDialog  from "../components/molecules/create-room-dialog/create-room-dialog";
+import { HeaderComponent } from "../components/organisms/header";
 import { asyncFetchCurrentUser } from "../redux/db/user/async-actions";
 import { useUserState } from "../redux/db/user/selectors";
-import styles from "../styles/Home.module.css";
-
-const useStyles = makeStyles({
-  root: { minWidth: 275 },
-  bullet: {
-    display: "inline-block",
-    margin: "0 2px",
-    transform: "scale(0.8)",
-  },
-  title: { fontSize: 14 },
-  pos: { marginBottom: 12 },
-});
 
 export default function Home(): JSX.Element {
+  const Title = styled.h1`
+  font-size: 1.5em;
+  text-align: center;
+  color: palevioletred;
+`;
   const router = useRouter();
-  const classes = useStyles();
   const dispatch = useDispatch();
   const [stateRoomId, setStateRoomId] = React.useState("");
 
@@ -56,13 +49,13 @@ export default function Home(): JSX.Element {
   };
 
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
-        <title>Voice chat application</title>
+        <Title>Voice chat application</Title>
         <meta name="description" content="this is prototype of voice chat application" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
+      <main>
         <HeaderComponent userState={useUserState().user}></HeaderComponent>
         <h1>Prototype of voicechat system</h1>
         
@@ -106,9 +99,9 @@ export default function Home(): JSX.Element {
           justify="center"
           alignItems="center"
         >
-          <Card className={classes.root} variant="outlined">
+          <Card variant="outlined">
             <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
+              <Typography color="textSecondary" gutterBottom>
                 roomの名前
               </Typography>
               <Typography variant="body2" component="p">
@@ -121,9 +114,9 @@ export default function Home(): JSX.Element {
               <Button size="small">Learn More</Button>
             </CardActions>
           </Card>
-          <Card className={classes.root} variant="outlined">
+          <Card variant="outlined">
             <CardContent>
-              <Typography className={classes.title} color="textSecondary" gutterBottom>
+              <Typography color="textSecondary" gutterBottom>
                ルームの名前
               </Typography>
               <Typography variant="body2" component="p">
@@ -139,14 +132,14 @@ export default function Home(): JSX.Element {
         </Grid>
       </main>
 
-      <footer className={styles.footer}>
+      <footer>
         <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
           target="_blank"
           rel="noopener noreferrer"
         >
           Powered by{" "}
-          <span className={styles.logo}>
+          <span>
             <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
           </span>
         </a>

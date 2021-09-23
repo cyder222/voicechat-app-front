@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { VFC } from "react";
-import { UserState } from "../../redux/db/user/slice";
-import styles from "../../styles/header.module.css";
+import { UserState } from "../../../redux/db/user/slice";
 
 export interface HeaderProps {
     userState?: UserState;
@@ -9,7 +8,7 @@ export interface HeaderProps {
 export const HeaderComponent: VFC<HeaderProps> = (props: HeaderProps) => {
     const router = useRouter();
     return (<>
-        <div className={styles.headerContainer}>
+        <div>
             <div className="header-logo"></div>
             { props.userState?.name && <div className="header-user-info">
                 {props.userState.name}
