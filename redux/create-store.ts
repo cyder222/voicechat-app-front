@@ -1,13 +1,14 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import logger from "redux-logger";
 import { Store, combineReducers } from "redux";
-import userSlice, { initialState as userState } from "./db/user/slice";
+import roomSlice, { initialState as RoomState } from "./db/room/slice";
+import userSlice, { initialState as UserState } from "./db/user/slice";
 
-export const rootReducer = combineReducers({ user: userSlice.reducer });
+export const rootReducer = combineReducers({ user: userSlice.reducer, room: roomSlice.reducer });
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const preloadedState = () => {
-  return { user: userState };
+  return { user: UserState, room: RoomState };
 };
 
 export type StoreState = ReturnType<typeof preloadedState>;
