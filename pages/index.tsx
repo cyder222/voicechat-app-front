@@ -12,11 +12,65 @@ import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import React, { useEffect } from "react";
 import styled from "styled-components";
+import RoundBtn  from "../components/atomic/button/round-corner-button/round-corner-button";
+import WaveButton from "../components/atomic/button/round-wave-button/round-wave-button";
+import SimpleInput from "../components/atomic/input/simple-input/simple-input";
 import { LoginController } from "../components/auth/login-controller";
 import CreateRoomDialog  from "../components/molecules/create-room-dialog/create-room-dialog";
 import { HeaderComponent } from "../components/organisms/header";
 import { asyncFetchCurrentUser } from "../redux/db/user/async-actions";
 import { useUserState } from "../redux/db/user/selectors";
+
+const MainViewWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  background: linear-gradient(to bottom, #EDF0F5, #FFF);
+  height: 576px;
+`;
+const MainViewImageWrapper = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+`;
+const MainViewImage = styled.img`
+  top: 154px;
+  right: 0px;
+  position: absolute;
+`;
+
+const MainViewContentWrapper = styled.div`
+  height: 576px;
+  padding: 176px 0 0 112px;
+  min-width: 600px;
+`;
+const MainViewSubject = styled.div`
+  font-size: 48px;
+  font-family:  'Roboto Condensed', sans-serif;
+  font-weight: 700;
+`;
+
+const MainViewDescription = styled.div`
+  margin-top: 48px;
+  font-size: 18px;
+  font-family:  'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  p {
+    line-height: 125%;
+  }
+`;
+
+const MainViewFormWrapper = styled.div`
+  margin-top: 64px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+`;
+
 
 export default function Home(): JSX.Element {
   const Title = styled.h1`
@@ -51,13 +105,33 @@ export default function Home(): JSX.Element {
   return (
     <div>
       <Head>
-        <Title>Voice chat application</Title>
         <meta name="description" content="this is prototype of voice chat application" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
         <HeaderComponent userState={useUserState().user}></HeaderComponent>
-        <h1>Prototype of voicechat system</h1>
+        <MainViewWrapper>
+          <MainViewContentWrapper>
+            <MainViewSubject>好きな声で好きを話そう</MainViewSubject>
+            <MainViewDescription>
+              <p>VTalkは匿名ボイスチャットサービスです。</p>
+              <p>AIがあなたの声を変換し、匿名での通話を手助けします</p>
+            </MainViewDescription>
+            <MainViewFormWrapper>
+              <RoundBtn text="部屋を作る" width="180px" height="48px"></RoundBtn>
+              <span style={{ fontWeight: "bold", marginLeft: "16px" }}>or</span>
+              <SimpleInput placeholder="部屋コードを入力" style={{ width:"200px", height: "46px", marginLeft: "16px" }} ></SimpleInput>
+              <span style={{ marginLeft: "8px" }}></span>
+              <RoundBtn text="入室" width="60px" height="48px"></RoundBtn>
+            </MainViewFormWrapper>
+          </MainViewContentWrapper>
+          <MainViewImageWrapper>
+            <MainViewImage src="/img/audio-image-top.png"></MainViewImage>
+            <div style={{ margin: "auto 0 64px 0" }}>
+              <WaveButton width="100px" height="100px" text="変換を試す" iconSrc="/img/phone.svg" iconWidth="54px" iconHeight="54px"></WaveButton>
+            </div>
+          </MainViewImageWrapper>
+        </MainViewWrapper>
         
         <h3>{process.env.DEV_MODE}</h3>
         <h1>2. PLEASE ENTER CODE or CREATE NEW ROOM</h1>

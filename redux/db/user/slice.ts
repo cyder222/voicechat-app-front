@@ -1,39 +1,46 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice, current } from "@reduxjs/toolkit";
+import { User } from "../../../codegen/api/fetch/models/User";
 import { asyncFetchCurrentUser } from "./async-actions";
 
-export type UserState = {
-  id: string;
-  uid: string;
-  name: string;
-  nickname?: string;
+
+export type UserEntity = User;
+
+export type UsersState = {
+  users: {[key: number]: UserEntity};
+  currentUser: number | null;
 };
 
-export const initialState: UserState = {
-  id: "",
-  name: "",
-  uid: "",
-  nickname: "",
+export const initialState: UsersState = {
+  users: {},
+  currentUser: null,
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    updateName: (state, action: PayloadAction<string>) => {return {
+    setName: (state, action: PayloadAction<{id: number, name: string}>) => {
+      const newUsers = state.users;
+      newUsers[action.payload.id].name = action.payload.name;
+      return {
       ...state,
-      name: action.payload,
-    };},
-    updateNickname: (state, action: PayloadAction<string>) => {return {
+      users: newUsers,
+    };
+  },
+    setNickname: (state, action:  PayloadAction<{id: number, name: string}>) => {
+      const newUsers = state.users;
+      newUsers[action.payload.id].nickname = action.payload.name;
+      return {
       ...state,
-      nickname: action.payload,
+      users: newUsers,
     };},
   },
   extraReducers: (builder) => {
     builder.addCase(asyncFetchCurrentUser.fulfilled, (state, action) => {
       const user = action.payload.user;
-      user.name && (state.name = user.name);
-      user.id && (state.id = user.id.toString());
-      user.uid && (state.uid = user.uid);
+      state.currentUser = user.id;
+      state.users[user.id] = user;
+      return state;
     });
   },
 });

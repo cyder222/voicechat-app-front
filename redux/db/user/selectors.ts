@@ -1,6 +1,14 @@
-import { useSelector } from "react-redux";
-import { UserState } from "./slice";
+import { StoreState } from "../../create-store";
+import { UserEntity } from "./slice";
 
-export const useUserState = () => {
-  return useSelector((state: { user: UserState }) => {return state;});
+export const userSelector = {
+  getById: (state: StoreState, userId: number): UserEntity=>{
+    return state.user.users[userId];
+  },
+  getCurrentUser: (state: StoreState): UserEntity | null => {
+    if(state.user.currentUser == null) {
+      return null;
+    }
+    return state.user.users[state.user.currentUser];
+  },
 };

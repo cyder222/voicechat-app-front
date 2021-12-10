@@ -3,7 +3,7 @@ import logger from "redux-logger";
 import { Store, combineReducers } from "redux";
 import userSlice, { initialState as userState } from "./db/user/slice";
 
-const rootReducer = combineReducers({ user: userSlice.reducer });
+export const rootReducer = combineReducers({ user: userSlice.reducer });
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const preloadedState = () => {
