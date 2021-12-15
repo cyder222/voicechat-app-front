@@ -1,5 +1,3 @@
-import React, { FormEvent, VFC } from "react";
-import { getVoiceChatApi } from "../../../api-fetch";
 import styled from "styled-components";
 
 const CardWrapper = styled.div`
@@ -8,6 +6,6 @@ const CardWrapper = styled.div`
   width: 100%;
 `;
 
-export interface RoomUserCardProps {}
-
-export const RoomUserCard = (props: RoomUserCardProps) => {};
+export const RoomUserCard = (props: RoomUserCardProps) => {
+  <CardWrapper></CardWrapper>;
+};

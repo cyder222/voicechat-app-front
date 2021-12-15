@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 
 interface OwnProps {
@@ -76,7 +76,7 @@ const SearchInput = ({ placeholder = "search...", onSubmit }: Props): JSX.Elemen
         onSubmit(textInputRef.current.value);
       }
     }
-  }, []);
+  }, [onSubmit]);
 
   return (
     <SearchInputWrapper ref={formRef} selected={selected}>

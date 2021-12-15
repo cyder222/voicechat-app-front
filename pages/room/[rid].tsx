@@ -1,13 +1,13 @@
 import { Button, Card, Container, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
 import { useRouter } from "next/router";
-import { useDispatch } from "react-redux";
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import styled from "styled-components";
 import { getVoiceChatApi } from "../../api-fetch/index";
 import { LoginController } from "../../components/auth/login-controller";
 import { config } from "../../config/constants";
 import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";
 import { useUserState } from "../../redux/db/user/selectors";
-import styled from "styled-components";
 
 const MainViewWrapper = styled.div`
   display: flex;
@@ -198,9 +198,7 @@ export default function Room(): JSX.Element {
       }
       await dispatch(asyncFetchCurrentUser({ apiKey: authToken! }));
       const api = getVoiceChatApi(authToken!);
-      const room = await api.getRoomsRoomId({
-        roomId: (typeof roomId! == typeof ["", ""] ? roomId![0] : roomId!) as string,
-      });
+      const room = await api.getRoomsRoomId({ roomId: (typeof roomId! == typeof ["", ""] ? roomId![0] : roomId!) as string });
       setRoomName(room.title);
       const currentUser = userState.user;
       console.log(`user_uid: ${currentUser.uid}`);

@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from "react";
 import { Transition, TransitionStatus } from "react-transition-group";
-import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 
 interface OwnProps {

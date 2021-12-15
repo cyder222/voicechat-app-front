@@ -9,7 +9,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 import { useRouter } from "next/router";
-import React, { FormEvent, VFC } from "react";
+import React, { VFC } from "react";
 import { getVoiceChatApi } from "../../../api-fetch";
 import LoginController from "../../auth/login-controller";
 
@@ -21,9 +21,7 @@ export interface createRoomDialogProps {
 const CreateRoomDialogModule: VFC<createRoomDialogProps> = (props: createRoomDialogProps) => {
   const [open, setOpen] = React.useState(false);
   const [roomName, setRoomName] = React.useState("");
-  const [roomDescription, setRoomDescription] = React.useState("");
   const [category, setCategory] = React.useState("All");
-  const [makePrivate, setMakePrivate] = React.useState(false);
 
   const router = useRouter();
 

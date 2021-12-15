@@ -184,4 +184,6 @@ class RingBuffer {
   }
 } // class RingBuffer
 
-export { RENDER_QUANTUM_FRAMES, HeapAudioBuffer, RingBuffer };
+export {
+ RENDER_QUANTUM_FRAMES, HeapAudioBuffer, RingBuffer, 
+};

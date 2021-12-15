@@ -1,12 +1,12 @@
 import { useRouter } from "next/router";
-import { VFC, useState } from "react";
+import { VFC } from "react";
 import styled from "styled-components";
-import { UserState } from "../../../redux/db/user/slice";
+import { UsersState } from "../../../redux/db/user/slice";
 import IconButton from "../../atomic/button/icon-button/icon-button";
 import SearchInput from "../../molecules/search-input/search-input";
 
 export interface HeaderProps {
-  userState?: UserState;
+  userState?: UsersState;
 }
 
 const HeaderWrapper = styled.div`
@@ -50,7 +50,7 @@ export const HeaderComponent: VFC<HeaderProps> = (props: HeaderProps) => {
           <InfoBlockItem>
             <SearchInput
               placeholder="search"
-              onSubmit={(val: string) => {
+              onSubmit={(val: string):void => {
                 alert(val);
               }}
             ></SearchInput>

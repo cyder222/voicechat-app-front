@@ -36,23 +36,12 @@ const roomSlice = createSlice({
         nickname: action.payload,
       };
     },
-    updateRoom: (state, action: PayloadAction<{ room: RoomEntity }>) => {
+    updateRoom: (state, action: PayloadAction<{ room: ChatEntity }>) => {
       const room = action.payload.room;
       const newRooms = {};
       newRooms[room.id] = room;
-      state.rooms = Object.assign(state.rooms, newRooms);
+
     },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(asyncFetchRooms.fulfilled, (state, action) => {
-      const rooms = action.payload.rooms;
-      const mapedRoom = rooms.reduce((prev, next: Room) => {
-        prev[next.id] = next;
-        return prev;
-      }, {});
-      state.rooms = Object.assign(state.rooms, mapedRoom);
-      return state;
-    });
   },
 });
 

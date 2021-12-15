@@ -1,6 +1,6 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
-import logger from "redux-logger";
 import { Store, combineReducers } from "redux";
+import logger from "redux-logger";
 import roomSlice, { initialState as RoomState } from "./db/room/slice";
 import userSlice, { initialState as UserState } from "./db/user/slice";
 import roomPagePeerSlice, { initialState as roomPagePeerState } from "./page/room/peers/slice";

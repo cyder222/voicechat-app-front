@@ -1,8 +1,8 @@
 // 部屋に入る準備画面
 import { Button, Card, Container, TextField, Typography, makeStyles } from "@material-ui/core";
 import { useRouter } from "next/router";
+import React, { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
-import React, { useEffect, useRef, useState } from "react";
 import LoginController from "../../components/auth/login-controller";
 import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";
 import { useUserState } from "../../redux/db/user/selectors";
