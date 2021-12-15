@@ -3,12 +3,12 @@ import logger from "redux-logger";
 import { Store, combineReducers } from "redux";
 import roomSlice, { initialState as RoomState } from "./db/room/slice";
 import userSlice, { initialState as UserState } from "./db/user/slice";
-import roomPagePeerSlice, { initialState as roomPagePeerState} from "./page/room/peers/slice";
+import roomPagePeerSlice, { initialState as roomPagePeerState } from "./page/room/peers/slice";
 
-export const rootReducer = combineReducers({ 
-  user: userSlice.reducer, 
-  room: roomSlice.reducer, 
-  roomPagePeer: roomPagePeerSlice.reducer 
+export const rootReducer = combineReducers({
+  user: userSlice.reducer,
+  room: roomSlice.reducer,
+  roomPagePeer: roomPagePeerSlice.reducer,
 });
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type

@@ -13,7 +13,7 @@ export default function Loging() {
         <meta name="description" content="this is prototype of voice chat application" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-        login page
+      login page
       <a href={`${config.url.API_BASE_URL}/auth/google_oauth2`}>ログイン</a>
       <footer className={styles.footer}>
         <a

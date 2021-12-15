@@ -1,6 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-
 export interface PeerEntity {
   id: string;
   userId: string;
@@ -9,11 +8,11 @@ export interface PeerEntity {
 
 export interface RoomPeerEntity {
   roomId: string;
-  peers: {[key: number]: PeerEntity};
+  peers: { [key: number]: PeerEntity };
 }
 
 export type RoomPagePeerState = {
-  roomPeers: {[key: string]: RoomPeerEntity};
+  roomPeers: { [key: string]: RoomPeerEntity };
   localPeerId: string;
 };
 
@@ -23,12 +22,12 @@ const roomPagePeerSlice = createSlice({
   name: "roomPagePeers",
   initialState,
   reducers: {
-    addOrUpdatePeer: (state, action: PayloadAction<{roomId: string, peer: PeerEntity, isLocal: boolean}>) => {
+    addOrUpdatePeer: (state, action: PayloadAction<{ roomId: string; peer: PeerEntity; isLocal: boolean }>) => {
       state.roomPeers[action.payload.roomId].peers[action.payload.peer.id] = action.payload.peer;
       action.payload.isLocal ? (state.localPeerId = action.payload.peer.id) : null;
       return state;
     },
-    removePeer: (state, action: PayloadAction<{ roomId: string, peerId: string}>) =>  {
+    removePeer: (state, action: PayloadAction<{ roomId: string; peerId: string }>) => {
       delete state.roomPeers[action.payload.roomId].peers[action.payload.peerId];
       return state;
     },

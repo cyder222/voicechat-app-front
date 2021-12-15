@@ -6,6 +6,11 @@
     "dev": "next -p 3001",
     "build": "next build",
     "start": "next start",
+    "lint": "run-p lint:eslint lint:prettier",
+    "lint:eslint": "next lint --dir components --dir domains --dir pages --dir resources",
+    "lint:prettier": "prettier --check \"./**/*.{ts,tsx}\"",
+    "lint:all-fix": "prettier --write \"./**/*.{ts,tsx}\"",
+    "lint:staged": "lint-staged",
     "gen:typescript-fetch": "openapi-generator-cli generate -i codegen/voicechat-alphas/reference/rooms.v1.yaml -g typescript-fetch -o codegen/api/fetch"
   },
   "dependencies": {
@@ -60,6 +65,11 @@
     "arrowParens": "always",
     "trailingComma": "all",
     "printWidth": 120
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "lint-staged": {
     "*.{ts,tsx}": [

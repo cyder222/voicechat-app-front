@@ -4,18 +4,18 @@ import styled from "styled-components";
 
 interface OwnProps {
   visible: boolean;
-  children:  ReactNode;
+  children: ReactNode;
   whiteout?: boolean;
 }
 
 type Props = OwnProps;
 
 interface LoadingWrapperProps {
-    whiteout?: boolean;
+  whiteout?: boolean;
 }
 
-const LoadingComponent =  memo(({ visible, whiteout = true, children }: Props) => {
-    return (
+const LoadingComponent = memo(({ visible, whiteout = true, children }: Props) => {
+  return (
     <div>
       {visible && (
         <LoaderWrapper whiteout={whiteout}>
@@ -31,7 +31,9 @@ LoadingComponent.displayName = "loading component";
 export default LoadingComponent;
 
 const LoaderWrapper = styled.div`
-    transparent: ${(props: LoadingWrapperProps):string => {return (props.whiteout ? "50%" : "0");}}
+    transparent: ${(props: LoadingWrapperProps): string => {
+      return props.whiteout ? "50%" : "0";
+    }}
     display: flex;
     justify-content: center;
     align-items: center;
@@ -46,17 +48,17 @@ const LoaderWrapper = styled.div`
 `;
 
 const LoadingSpinner = styled.div`
-// 中のローディングアニメ
-.loader,
-.loader:before,
-.loader:after {
+  // 中のローディングアニメ
+  .loader,
+  .loader:before,
+  .loader:after {
     background: #ffffff;
     animation: loading 1s infinite ease-in-out;
     width: 1em;
     height: 4em;
-}
+  }
 
-.loader {
+  .loader {
     color: #ffffff;
     text-indent: -9999em;
     margin: 88px auto;
@@ -67,44 +69,45 @@ const LoadingSpinner = styled.div`
 
     &::before,
     &::after {
-        position: absolute;
-        top: 0;
-        content: '';
+      position: absolute;
+      top: 0;
+      content: "";
     }
 
     &::before {
-        left: -1.5em;
-        animation-delay: -0.32s;
+      left: -1.5em;
+      animation-delay: -0.32s;
     }
 
     &::after {
-        left: 1.5em;
+      left: 1.5em;
     }
-}
-@-webkit-keyframes loading {
+  }
+  @-webkit-keyframes loading {
     0%,
     80%,
     100% {
-        box-shadow: 0 0;
-        height: 4em;
+      box-shadow: 0 0;
+      height: 4em;
     }
 
     40% {
-        box-shadow: 0 -2em;
-        height: 5em;
+      box-shadow: 0 -2em;
+      height: 5em;
     }
-}
+  }
 
-@keyframes loading {
+  @keyframes loading {
     0%,
     80%,
     100% {
-        box-shadow: 0 0;
-        height: 4em;
+      box-shadow: 0 0;
+      height: 4em;
     }
 
     40% {
-        box-shadow: 0 -2em;
-        height: 5em;
+      box-shadow: 0 -2em;
+      height: 5em;
     }
-}`;
+  }
+`;

@@ -12,11 +12,11 @@ import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import RoundBtn  from "../components/atomic/button/round-corner-button/round-corner-button";
+import RoundBtn from "../components/atomic/button/round-corner-button/round-corner-button";
 import WaveButton from "../components/atomic/button/round-wave-button/round-wave-button";
 import SimpleInput from "../components/atomic/input/simple-input/simple-input";
 import { LoginController } from "../components/auth/login-controller";
-import CreateRoomDialog  from "../components/molecules/create-room-dialog/create-room-dialog";
+import CreateRoomDialog from "../components/molecules/create-room-dialog/create-room-dialog";
 import { HeaderComponent } from "../components/organisms/header";
 import { asyncFetchCurrentUser } from "../redux/db/user/async-actions";
 import { useUserState } from "../redux/db/user/selectors";
@@ -25,7 +25,7 @@ const MainViewWrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  background: linear-gradient(to bottom, #EDF0F5, #FFF);
+  background: linear-gradient(to bottom, #edf0f5, #fff);
   height: 576px;
 `;
 const MainViewImageWrapper = styled.div`
@@ -49,14 +49,14 @@ const MainViewContentWrapper = styled.div`
 `;
 const MainViewSubject = styled.div`
   font-size: 48px;
-  font-family:  'Roboto Condensed', sans-serif;
+  font-family: "Roboto Condensed", sans-serif;
   font-weight: 700;
 `;
 
 const MainViewDescription = styled.div`
   margin-top: 48px;
   font-size: 18px;
-  font-family:  'Roboto Condensed', sans-serif;
+  font-family: "Roboto Condensed", sans-serif;
   font-weight: 700;
   p {
     line-height: 125%;
@@ -71,33 +71,30 @@ const MainViewFormWrapper = styled.div`
   align-items: center;
 `;
 
-
 export default function Home(): JSX.Element {
   const Title = styled.h1`
-  font-size: 1.5em;
-  text-align: center;
-  color: palevioletred;
-`;
+    font-size: 1.5em;
+    text-align: center;
+    color: palevioletred;
+  `;
   const router = useRouter();
   const dispatch = useDispatch();
   const [stateRoomId, setStateRoomId] = React.useState("");
 
   // プロトタイプ用の簡易ログインシステム
-  useEffect(()=>{
+  useEffect(() => {
     const url = new URL(window.location.href);
     const auth_token = url.searchParams.get("auth_token");
     const uid = url.searchParams.get("uid");
-    if(auth_token && auth_token !== "" && uid && uid !== "")
-    {
+    if (auth_token && auth_token !== "" && uid && uid !== "") {
       LoginController.setAuthToken(auth_token);
       LoginController.setUid(uid);
-          // ユーザー情報をフェッチしておく
+      // ユーザー情報をフェッチしておく
       dispatch(asyncFetchCurrentUser(auth_token!));
     }
-
-  },[dispatch]);
+  }, [dispatch]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleRoomIdChange = (e: any)=>{
+  const handleRoomIdChange = (e: any) => {
     const value = e.target.value;
     setStateRoomId(value);
   };
@@ -120,7 +117,10 @@ export default function Home(): JSX.Element {
             <MainViewFormWrapper>
               <RoundBtn text="部屋を作る" width="180px" height="48px"></RoundBtn>
               <span style={{ fontWeight: "bold", marginLeft: "16px" }}>or</span>
-              <SimpleInput placeholder="部屋コードを入力" style={{ width:"200px", height: "46px", marginLeft: "16px" }} ></SimpleInput>
+              <SimpleInput
+                placeholder="部屋コードを入力"
+                style={{ width: "200px", height: "46px", marginLeft: "16px" }}
+              ></SimpleInput>
               <span style={{ marginLeft: "8px" }}></span>
               <RoundBtn text="入室" width="60px" height="48px"></RoundBtn>
             </MainViewFormWrapper>
@@ -128,51 +128,55 @@ export default function Home(): JSX.Element {
           <MainViewImageWrapper>
             <MainViewImage src="/img/audio-image-top.png"></MainViewImage>
             <div style={{ margin: "auto 0 64px 0" }}>
-              <WaveButton width="100px" height="100px" text="変換を試す" iconSrc="/img/phone.svg" iconWidth="54px" iconHeight="54px"></WaveButton>
+              <WaveButton
+                width="100px"
+                height="100px"
+                text="変換を試す"
+                iconSrc="/img/phone.svg"
+                iconWidth="54px"
+                iconHeight="54px"
+              ></WaveButton>
             </div>
           </MainViewImageWrapper>
         </MainViewWrapper>
-        
+
         <h3>{process.env.DEV_MODE}</h3>
         <h1>2. PLEASE ENTER CODE or CREATE NEW ROOM</h1>
-          <CreateRoomDialog 
-            buttonText="ルームを作成する"
-            callBackAfterCreateRoom={(roomId: string)=>{
-              if(roomId == null){
-                alert("部屋の作成に失敗しました");
-              }
-              router.push(`/enter-room/${roomId}/`);
-            }}
-          ></CreateRoomDialog>
-          <form onSubmit={(e: React.FormEvent<HTMLFormElement>): void=>{
+        <CreateRoomDialog
+          buttonText="ルームを作成する"
+          callBackAfterCreateRoom={(roomId: string) => {
+            if (roomId == null) {
+              alert("部屋の作成に失敗しました");
+            }
+            router.push(`/enter-room/${roomId}/`);
+          }}
+        ></CreateRoomDialog>
+        <form
+          onSubmit={(e: React.FormEvent<HTMLFormElement>): void => {
             e.preventDefault();
-            if(stateRoomId === ""){
+            if (stateRoomId === "") {
               alert("部屋IDを入れてください。");
               return;
             }
             router.push(`/enter-room/${stateRoomId}/`);
-          }}>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="部屋のID"
-              type="  text"
-              onChange={handleRoomIdChange}
-              value={stateRoomId}
-              fullWidth
-            />
-            <Button type="submit" color="primary" variant="outlined">
-              部屋に入る
-            </Button>
-          </form>
-        <h1>公開部屋一覧</h1>
-        <Grid
-          container
-          direction="row"
-          justify="center"
-          alignItems="center"
+          }}
         >
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="部屋のID"
+            type="  text"
+            onChange={handleRoomIdChange}
+            value={stateRoomId}
+            fullWidth
+          />
+          <Button type="submit" color="primary" variant="outlined">
+            部屋に入る
+          </Button>
+        </form>
+        <h1>公開部屋一覧</h1>
+        <Grid container direction="row" justify="center" alignItems="center">
           <Card variant="outlined">
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
@@ -191,7 +195,7 @@ export default function Home(): JSX.Element {
           <Card variant="outlined">
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-               ルームの名前
+                ルームの名前
               </Typography>
               <Typography variant="body2" component="p">
                 ルームの詳細

@@ -13,9 +13,9 @@ import React, { FormEvent, VFC } from "react";
 import { getVoiceChatApi } from "../../../api-fetch";
 import LoginController from "../../auth/login-controller";
 
-export interface createRoomDialogProps{
+export interface createRoomDialogProps {
   buttonText: string;
-  callBackAfterCreateRoom?: (roomId: string, error?: Error)=>void;
+  callBackAfterCreateRoom?: (roomId: string, error?: Error) => void;
 }
 
 const CreateRoomDialogModule: VFC<createRoomDialogProps> = (props: createRoomDialogProps) => {
@@ -51,19 +51,16 @@ const CreateRoomDialogModule: VFC<createRoomDialogProps> = (props: createRoomDia
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const createRoom = async (event: any): Promise<void> => {
     event.preventDefault();
-    if(LoginController.getInfomation().authToken == null) {
+    if (LoginController.getInfomation().authToken == null) {
       router.push("/logging/");
       return;
     }
     const apiKey: string = LoginController.getInfomation().authToken!;
     const api = getVoiceChatApi(apiKey);
-    const room = await api.postRooms(
-     { roomCreateOrUpdateBody: { title: roomName, categoryId: 1 } },
-    );
-    if(room){
+    const room = await api.postRooms({ roomCreateOrUpdateBody: { title: roomName, categoryId: 1 } });
+    if (room) {
       room.roomIdentity && props.callBackAfterCreateRoom && props.callBackAfterCreateRoom(room.roomIdentity);
-    }else
-    {
+    } else {
       props.callBackAfterCreateRoom && props.callBackAfterCreateRoom("", new Error("failed to make new room"));
     }
     handleClose();
@@ -72,61 +69,63 @@ const CreateRoomDialogModule: VFC<createRoomDialogProps> = (props: createRoomDia
   return (
     <div>
       <FormControl variant="outlined">
-      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        {props.buttonText}
-      </Button>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">部屋を作成します</DialogTitle>
-        <form onSubmit={createRoom}>
-        <DialogContent>
-          <h3>部屋の名前</h3>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="部屋の名前"
-            type="  text"
-            onChange={handleRoomNameChange}
-            value={roomName}
-            fullWidth
-          />
-          <h3>部屋の詳細</h3>
-          <TextareaAutosize
-            id="description"
-            rowsMin={4}
-            placeholder="部屋の詳細"
-            onChange={handleRoomDescriptionChange}
-            value={roomName}
-          />
-          <h3>部屋のカテゴリ</h3>
-          <Select
-            labelId="demo-simple-select-outlined-label"
-            id="demo-simple-select-outlined"
-            value={category}
-            onChange={handleCategoryChange}
-            label="Age"
-          >
-          <MenuItem value="">
-            <em>None</em>
-          </MenuItem>
-          <MenuItem value={10}>Ten</MenuItem>
-          <MenuItem value={20}>Twenty</MenuItem>
-          <MenuItem value={30}>Thirty</MenuItem>
-        </Select>
-
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={(): void=>{
-            handleClose();
-            }} color="primary">
-            キャンセル
-          </Button>
-          <Button type="submit" color="primary">
-            部屋を作る
-          </Button>
-        </DialogActions>
-        </form>
-      </Dialog>
+        <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+          {props.buttonText}
+        </Button>
+        <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+          <DialogTitle id="form-dialog-title">部屋を作成します</DialogTitle>
+          <form onSubmit={createRoom}>
+            <DialogContent>
+              <h3>部屋の名前</h3>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                label="部屋の名前"
+                type="  text"
+                onChange={handleRoomNameChange}
+                value={roomName}
+                fullWidth
+              />
+              <h3>部屋の詳細</h3>
+              <TextareaAutosize
+                id="description"
+                rowsMin={4}
+                placeholder="部屋の詳細"
+                onChange={handleRoomDescriptionChange}
+                value={roomName}
+              />
+              <h3>部屋のカテゴリ</h3>
+              <Select
+                labelId="demo-simple-select-outlined-label"
+                id="demo-simple-select-outlined"
+                value={category}
+                onChange={handleCategoryChange}
+                label="Age"
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value={10}>Ten</MenuItem>
+                <MenuItem value={20}>Twenty</MenuItem>
+                <MenuItem value={30}>Thirty</MenuItem>
+              </Select>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={(): void => {
+                  handleClose();
+                }}
+                color="primary"
+              >
+                キャンセル
+              </Button>
+              <Button type="submit" color="primary">
+                部屋を作る
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
       </FormControl>
     </div>
   );
