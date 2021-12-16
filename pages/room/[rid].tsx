@@ -7,7 +7,7 @@ import { getVoiceChatApi } from "../../api-fetch/index";
 import { LoginController } from "../../components/auth/login-controller";
 import { config } from "../../config/constants";
 import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";
-import { useUserState } from "../../redux/db/user/selectors";
+import { useUsersState } from "../../redux/db/user/selectors";
 
 const MainViewWrapper = styled.div`
   display: flex;

@@ -19,7 +19,7 @@ import { LoginController } from "../components/auth/login-controller";
 import CreateRoomDialog from "../components/molecules/create-room-dialog/create-room-dialog";
 import { HeaderComponent } from "../components/organisms/header";
 import { asyncFetchCurrentUser } from "../redux/db/user/async-actions";
-import { useUserState } from "../redux/db/user/selectors";
+import { userSelector } from "../redux/db/user/selectors";
 
 const MainViewWrapper = styled.div`
   display: flex;
@@ -106,7 +106,7 @@ export default function Home(): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <HeaderComponent userState={useUserState().user}></HeaderComponent>
+        <HeaderComponent userState={UserSelector().user}></HeaderComponent>
         <MainViewWrapper>
           <MainViewContentWrapper>
             <MainViewSubject>好きな声で好きを話そう</MainViewSubject>
