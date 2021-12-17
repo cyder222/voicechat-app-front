@@ -10,7 +10,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import RoundBtn from "../components/atomic/button/round-corner-button/round-corner-button";
 import WaveButton from "../components/atomic/button/round-wave-button/round-wave-button";
@@ -78,6 +78,7 @@ export default function Home(): JSX.Element {
     color: palevioletred;
   `;
   const router = useRouter();
+  const currentUser = useSelector(userSelector.getCurrentUser);
   const dispatch = useDispatch();
   const [stateRoomId, setStateRoomId] = React.useState("");
 
@@ -90,7 +91,7 @@ export default function Home(): JSX.Element {
       LoginController.setAuthToken(auth_token);
       LoginController.setUid(uid);
       // ユーザー情報をフェッチしておく
-      dispatch(asyncFetchCurrentUser(auth_token!));
+      dispatch(asyncFetchCurrentUser({apiKey: auth_token!}));
     }
   }, [dispatch]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,7 +107,7 @@ export default function Home(): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <HeaderComponent userState={UserSelector().user}></HeaderComponent>
+        <HeaderComponent currentUser={currentUser}></HeaderComponent>
         <MainViewWrapper>
           <MainViewContentWrapper>
             <MainViewSubject>好きな声で好きを話そう</MainViewSubject>

@@ -1,13 +1,13 @@
 import { Button, Card, Container, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getVoiceChatApi } from "../../api-fetch/index";
 import { LoginController } from "../../components/auth/login-controller";
 import { config } from "../../config/constants";
 import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";
-import { useUsersState } from "../../redux/db/user/selectors";
+import { userSelector } from "../../redux/db/user/selectors";
 
 const MainViewWrapper = styled.div`
   display: flex;
@@ -37,7 +37,7 @@ export default function Room(): JSX.Element {
   const localStreamRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
   const roomId = router.query.rid;
-  const userState = useUserState();
+  const currentUser = useSelector(userSelector.getCurrentUser);
 
   const joinToRoom = async (): Promise<void> => {
     if (peer?.open) {
@@ -69,7 +69,7 @@ export default function Room(): JSX.Element {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       room.on("stream", async (stream: any) => {
-        if (stream.peerId == userState.user.uid) {
+        if (stream.peerId == currentUser?.uid) {
           return;
         }
         const authToken = LoginController.getInfomation().authToken;
@@ -192,7 +192,7 @@ export default function Room(): JSX.Element {
         router.push("/");
       }
       const token = LoginController.getInfomation().authToken;
-      if (token == null) {
+      if (token == null || currentUser == null) {
         router.push("/loging/");
         return;
       }
@@ -200,12 +200,11 @@ export default function Room(): JSX.Element {
       const api = getVoiceChatApi(authToken!);
       const room = await api.getRoomsRoomId({ roomId: (typeof roomId! == typeof ["", ""] ? roomId![0] : roomId!) as string });
       setRoomName(room.title);
-      const currentUser = userState.user;
-      console.log(`user_uid: ${currentUser.uid}`);
-      if (currentUser.uid === "") return;
-      setPeer(new Peer(currentUser.uid.toString(), { key: config.key.SKYWAY_APIKEY }));
+      console.log(`user_uid: ${currentUser?.uid}`);
+      if (currentUser?.uid === "") return;
+      setPeer(new Peer(currentUser?.uid.toString(), { key: config.key.SKYWAY_APIKEY }));
     })();
-  }, [roomId, router, userState, Peer]);
+  }, [roomId, router, currentUser, Peer]);
 
   useEffect(() => {
     (async (): Promise<void> => {
@@ -244,7 +243,7 @@ export default function Room(): JSX.Element {
           </GridListTile>
           <GridListTile className={"my-video"}>
             <video id="js-local-stream" muted ref={localStreamRef} playsInline width="100%" height="100%" />
-            <GridListTileBar title={userState.user.name} />
+            <GridListTileBar title={currentUser?.name} />
           </GridListTile>
         </GridList>
 

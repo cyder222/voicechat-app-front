@@ -1,12 +1,12 @@
 import { useRouter } from "next/router";
 import { VFC } from "react";
 import styled from "styled-components";
-import { UsersState } from "../../../redux/db/user/slice";
+import { UserEntity } from "../../../redux/db/user/slice";
 import IconButton from "../../atomic/button/icon-button/icon-button";
 import SearchInput from "../../molecules/search-input/search-input";
 
 export interface HeaderProps {
-  userState?: UsersState;
+  currentUser?: UserEntity;
 }
 
 const HeaderWrapper = styled.div`
@@ -58,9 +58,9 @@ export const HeaderComponent: VFC<HeaderProps> = (props: HeaderProps) => {
           <InfoBlockItem>
             <IconButton width="24px" height="24px" src="/img/setting_btn.svg"></IconButton>
           </InfoBlockItem>
-          {props.userState?.name && <div className="header-user-info">{props.userState.name}</div>}
+          {props.currentUser?.name && <div className="header-user-info">{props.currentUser.name}</div>}
           <InfoBlockItem>
-            {!props.userState?.id && (
+            {!props.currentUser?.id && (
               <div className="header-signin-block">
                 <button
                   onClick={(): void => {

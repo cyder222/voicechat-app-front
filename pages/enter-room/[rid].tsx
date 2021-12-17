@@ -2,10 +2,10 @@
 import { Button, Card, Container, TextField, Typography, makeStyles } from "@material-ui/core";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import LoginController from "../../components/auth/login-controller";
 import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";
-import { useUserState } from "../../redux/db/user/selectors";
+import { userSelector } from "../../redux/db/user/selectors";
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 export default function EnterRoom(): JSX.Element {
-  const userState = useUserState();
+  const currentUser = useSelector(userSelector.getCurrentUser(state));
   const router = useRouter();
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -39,10 +39,10 @@ export default function EnterRoom(): JSX.Element {
         router.push("/loging");
         return;
       }
-      await dispatch(asyncFetchCurrentUser(token!));
+      await dispatch(asyncFetchCurrentUser({apiKey: token!}));
       await localStreamSetting();
     })();
-  }, [router, userState, dispatch, localStreamRef]);
+  }, [router, currentUser, dispatch, localStreamRef]);
 
   const localStreamSetting = async (): Promise<void> => {
     if (localStreamRef == null) return;
