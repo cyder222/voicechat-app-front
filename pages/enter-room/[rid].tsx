@@ -1,5 +1,5 @@
 // 部屋に入る準備画面
-import { Button, Card, Container, TextField, Typography, makeStyles } from "@material-ui/core";
+import { Button, Card, Container, Typography, makeStyles } from "@material-ui/core";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 export default function EnterRoom(): JSX.Element {
-  const currentUser = useSelector(userSelector.getCurrentUser(state));
+  const currentUser = useSelector(userSelector.getCurrentUser);
   const router = useRouter();
   const classes = useStyles();
   const dispatch = useDispatch();
@@ -39,7 +39,7 @@ export default function EnterRoom(): JSX.Element {
         router.push("/loging");
         return;
       }
-      await dispatch(asyncFetchCurrentUser({apiKey: token!}));
+      await dispatch(asyncFetchCurrentUser( { apiKey: token! }) );
       await localStreamSetting();
     })();
   }, [router, currentUser, dispatch, localStreamRef]);
@@ -55,7 +55,6 @@ export default function EnterRoom(): JSX.Element {
   };
   const roomJoinClick = async (): Promise<void> => {
     if (typeof window !== "undefined") {
-      const urls = router.pathname.split("/");
       const rid = router.query.rid;
       router.push(`/room/${rid}`);
     }

@@ -2,19 +2,12 @@ import { Button, Card, Container, GridList, GridListTile, GridListTileBar } from
 import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
 import { getVoiceChatApi } from "../../api-fetch/index";
 import { LoginController } from "../../components/auth/login-controller";
 import { config } from "../../config/constants";
 import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";
 import { userSelector } from "../../redux/db/user/selectors";
 
-const MainViewWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  height: 576px;
-`;
 
 export default function Room(): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -224,7 +217,7 @@ export default function Room(): JSX.Element {
     });
     await localStreamRef.current.play();
   };
-  const localStreamOff = () => {
+  const localStreamOff = (): void => {
     // ローカルストリームを複数回オン, オフにしたとき, current = nullになるため
     if (localStreamRef.current) {
       if (localStreamRef.current.srcObject instanceof MediaStream) {

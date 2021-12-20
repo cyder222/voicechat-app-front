@@ -6,7 +6,7 @@ import IconButton from "../../atomic/button/icon-button/icon-button";
 import SearchInput from "../../molecules/search-input/search-input";
 
 export interface HeaderProps {
-  currentUser?: UserEntity;
+  currentUser: UserEntity | null;
 }
 
 const HeaderWrapper = styled.div`
