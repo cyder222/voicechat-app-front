@@ -20,6 +20,8 @@ import CreateRoomDialog from "../components/molecules/create-room-dialog/create-
 import { HeaderComponent } from "../components/organisms/header";
 import { asyncFetchCurrentUser } from "../redux/db/user/async-actions";
 import { userSelector } from "../redux/db/user/selectors";
+import userSlice from "../redux/db/user/slice";
+import { prepareSSP } from "../util/ssp/prepareFetch";
 
 const MainViewWrapper = styled.div`
   display: flex;
@@ -71,7 +73,10 @@ const MainViewFormWrapper = styled.div`
   align-items: center;
 `;
 
-export default function Home(): JSX.Element {
+
+export const getServerSideProps: GetServerSideProps = prepareSSP(true);
+
+export default function Home(props): JSX.Element {
   const Title = styled.h1`
     font-size: 1.5em;
     text-align: center;
@@ -91,7 +96,7 @@ export default function Home(): JSX.Element {
       LoginController.setAuthToken(auth_token);
       LoginController.setUid(uid);
       // ユーザー情報をフェッチしておく
-      dispatch(asyncFetchCurrentUser({apiKey: auth_token!}));
+      dispatch(asyncFetchCurrentUser({ apiKey: auth_token! }));
     }
   }, [dispatch]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,7 +112,7 @@ export default function Home(): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <HeaderComponent currentUser={currentUser}></HeaderComponent>
+        <HeaderComponent currentUser={props.currentUser ? props.currentUser : currentUser}></HeaderComponent>
         <MainViewWrapper>
           <MainViewContentWrapper>
             <MainViewSubject>好きな声で好きを話そう</MainViewSubject>

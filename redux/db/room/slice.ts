@@ -37,7 +37,7 @@ const roomSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(asyncFetchRooms.fulfilled, (state, action) => {
       const rooms = action.payload.rooms;
-      const mapedRoom = rooms.reduce((prev, next: Room) => {
+      const mapedRoom = rooms?.reduce((prev, next: Room) => {
         prev[next.id] = next;
         return prev;
       }, {});

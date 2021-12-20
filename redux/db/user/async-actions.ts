@@ -11,11 +11,13 @@ export interface fetchUserPayload {
 }
 
 export const asyncFetchCurrentUser = createAsyncThunk<fetchUserPayload, { apiKey: string }>(
-  "db/user/asyncFetchUser",
+  "db/user/asyncFetchCurrentUser",
   async ({ apiKey }): Promise<fetchUserPayload> => {
     const api = getVoiceChatApi(apiKey);
-    const user = await api.getUsersCurrent();
 
+    const user = await api.getUsersCurrent();
+    console.log("abc");
+    console.log(user);
     return { user: user };
   },
 );
@@ -23,7 +25,7 @@ export const asyncFetchCurrentUser = createAsyncThunk<fetchUserPayload, { apiKey
 type fixGetApiUsersUserIdRequest = { apiKey: string } & GetApiUsersUserIdRequest;
 
 export const asyncFetchUserByUserId = createAsyncThunk<fetchPublicUserPayload, fixGetApiUsersUserIdRequest>(
-  "db/user/asyncFetchUser",
+  "db/user/asyncFetchUserByUserId",
   async (payload): Promise<fetchPublicUserPayload> => {
     const api = getVoiceChatApi(payload.apiKey);
     const user = await api.getApiUsersUserId(payload);

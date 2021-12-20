@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice, current } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { User } from "../../../codegen/api/fetch/models/User";
 import { asyncFetchCurrentUser } from "./async-actions";
 
@@ -33,6 +33,12 @@ const userSlice = createSlice({
         ...state,
         users: newUsers,
       };
+    },
+    setCurrentUser: (state, action: PayloadAction<{ newUser: UserEntity}>) => {
+      const newUser = action.payload.newUser;
+      state.users[action.payload.newUser.id] = newUser;
+      state.currentUser = newUser.id;
+      
     },
   },
   extraReducers: (builder) => {

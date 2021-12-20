@@ -6,7 +6,7 @@ export interface fetchRoomsPayload {
   rooms: Room[];
 }
 export const asyncFetchRooms = createAsyncThunk<fetchRoomsPayload, { request: GetRoomsRequest; apiKey: string }>(
-  "db/user/asyncFetchUser",
+  "db/room/asyncFetchRooms",
   async (payload: { request: GetRoomsRequest; apiKey: string }): Promise<fetchRoomsPayload> => {
     const api = getVoiceChatApi(payload.apiKey);
 

@@ -12,23 +12,24 @@ export const rootReducer = combineReducers({
 });
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const preloadedState = () => {
+const defaultPreloadedState = () => {
   return { user: UserState, room: RoomState, roomPagePeer: roomPagePeerState };
 };
 
-export type StoreState = ReturnType<typeof preloadedState>;
+export type StoreState = ReturnType<typeof defaultPreloadedState>;
 
 export type ReduxStore = Store<StoreState>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/explicit-module-boundary-types
-const createStore = () => {
+const createStore = (initialState = {}) => {
   const middlewareList = [...getDefaultMiddleware(), logger];
-
+  const preloadedState = initialState === {} ? defaultPreloadedState : initialState;
   return configureStore({
     reducer: rootReducer,
     middleware: middlewareList,
     devTools: process.env.DEV_MODE !== "production",
-    preloadedState: preloadedState(),
+    preloadedState: preloadedState,
+    
   });
 };
 

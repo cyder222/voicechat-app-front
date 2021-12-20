@@ -1,10 +1,9 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
 import React from "react";
-import { Provider } from "react-redux";
 import { createGlobalStyle } from "styled-components";
 import { Reset } from "styled-reset";
-import createStore from "../redux/create-store";
+import { withRedux } from "../util/with-redux";
 
 const GlobalStyles = createGlobalStyle`
   button {
@@ -14,7 +13,7 @@ const GlobalStyles = createGlobalStyle`
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   return (
-    <Provider store={createStore()}>
+    <div>
       <Head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="cross-origin" />
@@ -26,8 +25,8 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       <Reset />
       <GlobalStyles />
       <Component {...pageProps} />;
-    </Provider>
+    </div>
   );
 }
 
-export default MyApp;
+export default withRedux(MyApp);
