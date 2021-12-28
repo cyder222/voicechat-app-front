@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { HYDRATE } from "next-redux-wrapper";
 import { User } from "../../../codegen/api/fetch/models/User";
 import { asyncFetchCurrentUser } from "./async-actions";
 
@@ -38,7 +39,6 @@ const userSlice = createSlice({
       const newUser = action.payload.newUser;
       state.users[action.payload.newUser.id] = newUser;
       state.currentUser = newUser.id;
-      
     },
   },
   extraReducers: (builder) => {
@@ -47,6 +47,13 @@ const userSlice = createSlice({
       state.currentUser = user.id;
       state.users[user.id] = user;
       return state;
+    });
+
+    builder.addCase(HYDRATE, (state, action: any) => {
+      return {
+          ...state,
+          ...action.payload.user,
+      };
     });
   },
 });

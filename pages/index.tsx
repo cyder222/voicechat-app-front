@@ -20,6 +20,7 @@ import SimpleInput from "../components/atomic/input/simple-input/simple-input";
 import { LoginController } from "../components/auth/login-controller";
 import CreateRoomDialog from "../components/molecules/create-room-dialog/create-room-dialog";
 import { HeaderComponent } from "../components/organisms/header";
+import wrapper  from "../redux/create-store";
 import { asyncFetchCurrentUser } from "../redux/db/user/async-actions";
 import { userSelector } from "../redux/db/user/selectors";
 import userSlice from "../redux/db/user/slice";
@@ -76,7 +77,7 @@ const MainViewFormWrapper = styled.div`
 `;
 
 
-export const getServerSideProps: GetServerSideProps = prepareSSP(true);
+export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP(false, store);} );
 
 export default function Home(props): JSX.Element {
   const Title = styled.h1`
@@ -89,18 +90,7 @@ export default function Home(props): JSX.Element {
   const dispatch = useDispatch();
   const [stateRoomId, setStateRoomId] = React.useState("");
 
-  // プロトタイプ用の簡易ログインシステム
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    const auth_token = url.searchParams.get("auth_token");
-    const uid = url.searchParams.get("uid");
-    if (auth_token && auth_token !== "" && uid && uid !== "") {
-      LoginController.setAuthToken(auth_token);
-      LoginController.setUid(uid);
-      // ユーザー情報をフェッチしておく
-      dispatch(asyncFetchCurrentUser({ apiKey: auth_token! }));
-    }
-  }, [dispatch]);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRoomIdChange = (e: any) => {
     const value = e.target.value;
@@ -114,7 +104,7 @@ export default function Home(props): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <HeaderComponent currentUser={props.currentUser ? props.currentUser : currentUser}></HeaderComponent>
+        <HeaderComponent currentUser={currentUser}></HeaderComponent>
         <MainViewWrapper>
           <MainViewContentWrapper>
             <MainViewSubject>好きな声で好きを話そう</MainViewSubject>

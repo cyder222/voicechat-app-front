@@ -1,5 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { ParsedUrlQuery } from "querystring";
+import { EnhancedStore, current } from "@reduxjs/toolkit";
 import { produceWithPatches } from "immer";
 import { GetServerSideProps } from "next";
 import { parseCookies, setCookie } from "nookies";
@@ -28,7 +29,7 @@ type InnerGetServerSideProps<P extends { [key: string]: unknown }> = (
 
   
 export const prepareSSP = <P extends { [key: string]: unknown }>(
-    forceAuth = false, inner?: InnerGetServerSideProps<P>,
+    forceAuth = false, store?: EnhancedStore, inner?: InnerGetServerSideProps<P>,
   ): GetServerSideProps => {
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -39,7 +40,6 @@ export const prepareSSP = <P extends { [key: string]: unknown }>(
         query,
       } = ctx;
       // This allows you to set a custom default initialState
-      const reduxStore = initializeStore({});
       let token;
       if(query.auth_token && query.uid){
         setCookie(ctx, "LoginControllerAuthToken", query.auth_token as string);
@@ -71,8 +71,8 @@ export const prepareSSP = <P extends { [key: string]: unknown }>(
       }
 
       const currentUser = await currentUserResponse.value();
-      currentUser.nickname = "";
-      reduxStore.dispatch(userSlice.actions.setCurrentUser({ newUser: currentUser }));
-      return inner ? inner(ctx) : { props: { currentUser: currentUser } };
+      currentUser.nickname = currentUser.nickname ? currentUser.nickname : "";
+      store?.dispatch(userSlice.actions.setCurrentUser({ newUser: currentUser }));
+      return inner ? inner(ctx) : { props: { } };
     };
   };

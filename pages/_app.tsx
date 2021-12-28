@@ -1,9 +1,9 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
-import React from "react";
+import React, { FC } from "react";
 import { createGlobalStyle } from "styled-components";
 import { Reset } from "styled-reset";
-import { withRedux } from "../util/with-redux";
+import wrapper from "../redux/create-store";
 
 const GlobalStyles = createGlobalStyle`
   button {
@@ -11,7 +11,8 @@ const GlobalStyles = createGlobalStyle`
   }
 `;
 
-function MyApp({ Component, pageProps }: AppProps): JSX.Element {
+const MyApp  = ({ Component, pageProps }: AppProps): JSX.Element =>
+ {
   return (
     <div>
       <Head>
@@ -27,6 +28,6 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
       <Component {...pageProps} />;
     </div>
   );
-}
+};
 
-export default withRedux(MyApp);
+export default wrapper.withRedux(MyApp);

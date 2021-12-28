@@ -1,4 +1,6 @@
-import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+import reduxWebsocket from "@giantmachines/redux-websocket";
+import { EnhancedStore, configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+import { Context, createWrapper } from "next-redux-wrapper";
 import { Store, combineReducers } from "redux";
 import logger from "redux-logger";
 import roomSlice, { initialState as RoomState } from "./db/room/slice";
@@ -20,17 +22,24 @@ export type StoreState = ReturnType<typeof defaultPreloadedState>;
 
 export type ReduxStore = Store<StoreState>;
 
+const reduxWebsocketMiddleware = reduxWebsocket();
+
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/explicit-module-boundary-types
-const createStore = (initialState = {}) => {
-  const middlewareList = [...getDefaultMiddleware(), logger];
-  const preloadedState = initialState === {} ? defaultPreloadedState : initialState;
+const createStore = (context: Context):EnhancedStore => {
+  const middlewareList = [...getDefaultMiddleware(), reduxWebsocketMiddleware];
+
+  if(process.env.DEV_MODE !== "production") {
+    middlewareList.push(logger);
+  }
   return configureStore({
     reducer: rootReducer,
     middleware: middlewareList,
     devTools: process.env.DEV_MODE !== "production",
-    preloadedState: preloadedState,
-    
   });
 };
 
-export default createStore;
+const makeStore = (context: Context): EnhancedStore => {return createStore(context);};
+
+const wrapper = createWrapper(makeStore, { debug: process.env.NODE_ENV === "development" });
+
+export default wrapper;
