@@ -2,14 +2,14 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { RootStateOrAny } from "react-redux";
 import { getVoiceChatApi } from "../../../api-fetch/index";
 import { GetRoomsRequest, GetRoomsRoomIdRequest, Room } from "../../../codegen/api/fetch";
-import { AppDispatch, AppState } from "../../create-store";
+import { AppState } from "../../create-store";
 
 export interface fetchRoomsPayload {
   rooms: Room[];
 }
 export const asyncFetchRooms = createAsyncThunk<fetchRoomsPayload, { request: GetRoomsRequest; apiKey: string },{
   state: AppState,
-  dispatch: AppDispatch
+  dispatch: any
 }>(
   "db/room/asyncFetchRooms",
   async (payload: { request: GetRoomsRequest; apiKey: string }): Promise<fetchRoomsPayload> => {
