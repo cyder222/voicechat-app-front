@@ -40,6 +40,10 @@ const userSlice = createSlice({
       state.users[action.payload.newUser.id] = newUser;
       state.currentUser = newUser.id;
     },
+    addOrUpdateUser: (state, action: PayloadAction<{newUser: UserEntity}>) => {
+      const newUser = action.payload.newUser;
+      state.users[newUser.id] = newUser;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(asyncFetchCurrentUser.fulfilled, (state, action) => {

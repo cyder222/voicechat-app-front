@@ -9,7 +9,9 @@ export default function PlayGround(): JSX.Element {
     return(
         <div>
             <HeaderComponent currentUser={currentUser}></HeaderComponent>
-            <RoomUserCard name={"taiki"} volume={50} isMute={false} isVoicing={false} image={null}></RoomUserCard>
+            {
+            currentUser && <RoomUserCard stream={null} userId={currentUser?.id} playState={"stop"} volume={50} isMute={false} isVoicing={false} image={null}></RoomUserCard>
+            }
         </div>
     );
 }
