@@ -1,6 +1,6 @@
-import { StoreState } from "../../create-store";
-import { UserEntity } from "../user/slice";
-import { RoomEntity } from "./slice";
+import { StoreState } from "../../../create-store";
+import { RoomEntity } from "../../../db/room/slice";
+import { UserEntity } from "../../../db/user/slice";
 
 export const roomSelector = {
   getById: (state: StoreState, roomId: number): RoomEntity => {

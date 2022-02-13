@@ -1,7 +1,7 @@
 import reduxWebsocket from "@giantmachines/redux-websocket";
-import { EnhancedStore, configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+import { EnhancedStore, ThunkAction, configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import { Context, createWrapper } from "next-redux-wrapper";
-import { Store, combineReducers } from "redux";
+import { Action, Store, combineReducers } from "redux";
 import logger from "redux-logger";
 import roomSlice, { initialState as RoomState } from "./db/room/slice";
 import userSlice, { initialState as UserState } from "./db/user/slice";
@@ -24,9 +24,9 @@ export type ReduxStore = Store<StoreState>;
 
 const reduxWebsocketMiddleware = reduxWebsocket();
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/explicit-module-boundary-types
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createStore = (context: Context):EnhancedStore => {
-  const middlewareList = [...getDefaultMiddleware(), reduxWebsocketMiddleware];
+  const middlewareList = [...getDefaultMiddleware({ serializableCheck: false }), reduxWebsocketMiddleware];
 
   if(process.env.DEV_MODE !== "production") {
     middlewareList.push(logger);
@@ -39,6 +39,10 @@ const createStore = (context: Context):EnhancedStore => {
 };
 
 const makeStore = (context: Context): EnhancedStore => {return createStore(context);};
+
+export type AppStore = ReturnType<typeof makeStore>;
+export type AppState = ReturnType<AppStore["getState"]>;
+export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, AppState, unknown, Action>;
 
 const wrapper = createWrapper(makeStore, { debug: process.env.NODE_ENV === "development" });
 

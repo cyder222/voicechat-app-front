@@ -1,57 +1,58 @@
 // 部屋に入る準備画面
 import { Button, Card, Container, Typography, makeStyles } from "@material-ui/core";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef } from "react";
+import { parseCookies } from "nookies";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getVoiceChatApi } from "../../api-fetch";
+import { GetRoomsRoomIdRequest } from "../../codegen/api/fetch";
 import LoginController from "../../components/auth/login-controller";
+import VideoElement from "../../components/molecules/video-element/video-element";
+import wrapper, { StoreState } from "../../redux/create-store";
+import { asyncFetchRoomById } from "../../redux/db/room/async-actions";
+import { roomSelector } from "../../redux/db/room/selectors";
+import roomSlice from "../../redux/db/room/slice";
 import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";
 import { userSelector } from "../../redux/db/user/selectors";
+import { prepareSSP } from "../../util/ssp/prepareFetch";
 
-const useStyles = makeStyles((theme) => {
-  return {
-    paper: {
-      marginTop: theme.spacing(8),
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-    },
-    form: {
-      width: "100%", // Fix IE 11 issue.
-      marginTop: theme.spacing(1),
-    },
-    input: { marginTop: theme.spacing(2) },
-    submit: { margin: theme.spacing(3, 0, 2) },
-    panel: { padding: "12px" },
-    container: { marginTop: "14px" },
-  };
-});
 
-export default function EnterRoom(): JSX.Element {
+
+
+export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP(false, store, async (ctx, store)=>{
+  const rid = ctx.query.rid as string;
+  const parsedCookie = parseCookies(ctx);
+  const token = parsedCookie["LoginControllerAuthToken"];
+  const request: GetRoomsRoomIdRequest = { roomId: rid };
+  const api = getVoiceChatApi(token);
+  const room = await api.getRoomsRoomId(request);
+
+  await store?.dispatch(roomSlice.actions.updateRoom({ room: room }));
+
+  return { props: { rid: room.roomIdentity } };
+});});
+
+export default  function EnterRoom(props:{rid: string}): JSX.Element {
   const currentUser = useSelector(userSelector.getCurrentUser);
+  const currentRoom = useSelector((state: StoreState) => {return roomSelector.getById(state, props.rid as string );});
   const router = useRouter();
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const localStreamRef = useRef<HTMLVideoElement>(null);
+
+  const [localStreamProvider, setLocalStreamProvider] = useState<MediaProvider | null>(null);
+  const [playState, setPlayState] = useState<"start"|"stop">("stop");
   useEffect(() => {
     (async (): Promise<void> => {
-      const token = LoginController.getInfomation().authToken;
-      if (token == null) {
-        router.push("/loging");
-        return;
-      }
-      await dispatch(asyncFetchCurrentUser( { apiKey: token! }) );
+      console.log(currentRoom?.title);
       await localStreamSetting();
     })();
-  }, [router, currentUser, dispatch, localStreamRef]);
+  }, [currentRoom]);
 
   const localStreamSetting = async (): Promise<void> => {
-    if (localStreamRef == null) return;
-    if (localStreamRef.current == null) return;
-    localStreamRef.current.srcObject = await navigator.mediaDevices.getUserMedia({
+    const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
-      video: true,
+      video: false,
     });
-    await localStreamRef.current.play();
+    setLocalStreamProvider(stream);
+    setPlayState("start");
   };
   const roomJoinClick = async (): Promise<void> => {
     if (typeof window !== "undefined") {
@@ -60,15 +61,15 @@ export default function EnterRoom(): JSX.Element {
     }
   };
   return (
-    <Container component="main" maxWidth="xs" className={classes.container}>
-      <Card className={classes.panel}>
-        <div className={classes.paper}>
+    <Container component="main" maxWidth="xs">
+      <Card>
+        <div>
           <Typography component="h1" variant="h5">
-            ルームに入室
+            {currentRoom?.title}
           </Typography>
-          <div className={classes.form}>
-            <div className={classes.input}>
-              <video id="js-local-stream" muted ref={localStreamRef} playsInline width="100%" height="100%" />
+          <div>
+            <div>
+              <VideoElement customSrcObject={localStreamProvider} playState={playState}></VideoElement>
             </div>
             <Button
               variant="contained"
@@ -77,7 +78,6 @@ export default function EnterRoom(): JSX.Element {
               color="primary"
               fullWidth
               onClick={roomJoinClick}
-              className={classes.submit}
             >
               通話を開始する
             </Button>

@@ -1,251 +1,235 @@
 import { Button, Card, Container, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef, useState } from "react";
+import { parseCookies } from "nookies";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 import { getVoiceChatApi } from "../../api-fetch/index";
+import { GetRoomsRoomIdRequest, User } from "../../codegen/api/fetch";
 import { LoginController } from "../../components/auth/login-controller";
+import RoomUserCard, { RoomUserCardProps } from "../../components/molecules/room-user-card/room-user-card";
 import { config } from "../../config/constants";
+import wrapper, { StoreState } from "../../redux/create-store";
+import { roomSelector } from "../../redux/db/room/selectors";
+import roomSlice from "../../redux/db/room/slice";
 import { asyncFetchCurrentUser } from "../../redux/db/user/async-actions";
 import { userSelector } from "../../redux/db/user/selectors";
+import userSlice, { UserEntity } from "../../redux/db/user/slice";
+import { roomPagePeerSelector } from "../../redux/page/room/peers/selectors";
+import roomPeerSlice, { PeerEntity } from "../../redux/page/room/peers/slice";
+import { prepareSSP } from "../../util/ssp/prepareFetch";
 
+const MainViewWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+`;
 
-export default function Room(): JSX.Element {
+const VoiceChatViewWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+
+`;
+
+const VoiceChatTitle = styled.div`
+  &::before{
+    content: '';
+    background: url('') no-repeat; 
+    background-size: contain;
+  }
+`;
+
+const VoiceChatPeers = styled.div``;
+
+let Peer;
+if (process.browser) {
+  Peer = require("skyway-js");
+
+}
+
+const TextChatViewWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP(false, store, async (ctx, store)=>{
+  const rid = ctx.query.rid as string;
+  const parsedCookie = parseCookies(ctx);
+  const token = parsedCookie["LoginControllerAuthToken"];
+  const request: GetRoomsRoomIdRequest = { roomId: rid };
+  const api = getVoiceChatApi(token);
+  const room = await api.getRoomsRoomId(request);
+
+  store?.dispatch(roomSlice.actions.updateRoom({ room: room }));
+
+  return { props: { rid: room.roomIdentity } };
+});});
+ 
+const Room = (props: {rid: string}): JSX.Element => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let Peer: any;
-  let jsLocalStream;
-  let jsRemoteStream: HTMLElement | null;
-  let jsLeaveTrigger: HTMLElement | null;
+  const jsLeaveTrigger = useRef(null);
   const dispatch = useDispatch();
 
-  const [roomName, setRoomName] = useState("");
+  useEffect(() => {
+    (async (): Promise<void> => {
+      await localStreamSetting();
+    })();
+  }, []);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [peer, setPeer] = useState<any>(null);
 
-  if (process.browser) {
-    Peer = require("skyway-js");
-    jsLocalStream = document.getElementById("js-local-stream");
-    jsRemoteStream = document.getElementById("js-remote-streams");
-    jsLeaveTrigger = document.getElementById("js-leave-trigger");
-  }
-  const localStreamRef = useRef<HTMLVideoElement>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+
   const router = useRouter();
-  const roomId = router.query.rid;
-  const currentUser = useSelector(userSelector.getCurrentUser);
-
-  const joinToRoom = async (): Promise<void> => {
-    if (peer?.open) {
-      return;
-    }
-    const authToken = LoginController.getInfomation().authToken;
-    if (authToken == null) {
-      router.push("/loging/");
-    }
-    if (roomId == null) {
-      router.push("/");
-    }
-    const api = getVoiceChatApi(authToken!);
-
-    await api.postRoomsUsers({ roomId: (typeof roomId! == typeof ["", ""] ? roomId![0] : roomId!) as string });
-    let room;
-    peer.on("open", (id) => {
-      room = peer.joinRoom(roomId, {
-        mode: "mesh",
-        stream: localStreamRef?.current?.srcObject,
-      });
-      room.once("open", () => {
-        console.log("=== You joined ===\n");
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      room.on("peerJoin", (peerId: any) => {
-        console.log(`=== ${peerId} joined ===\n`);
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      room.on("stream", async (stream: any) => {
-        if (stream.peerId == currentUser?.uid) {
-          return;
-        }
-        const authToken = LoginController.getInfomation().authToken;
-        if (authToken == null) {
-          router.push("/loging/");
-        }
-        const api = getVoiceChatApi(authToken!);
-        const user = await api.getApiUsersUserId({ userId: stream.peerId });
-        if (!user) return;
-        // gridListTitle
-        const gridListTitleRoot = document.createElement("li");
-        gridListTitleRoot.setAttribute("id", stream.peerId);
-        gridListTitleRoot.setAttribute("class", "MuiGridListTile-tile-root makeStyles-videoContainer-2");
-        gridListTitleRoot.setAttribute("style", "width: 50%; padding: 1px; background-color:gray;");
-        const gridListTitleVideo = document.createElement("div");
-        gridListTitleVideo.setAttribute("class", "MuiGridListTile-tile");
-        gridListTitleRoot.append(gridListTitleVideo);
-        // video
-        const newVideo = document.createElement("video");
-        newVideo.setAttribute("id", `js-local-stream-${stream.peerId}`);
-        newVideo.srcObject = stream;
-        newVideo.playsInline = true;
-        newVideo.setAttribute("width", "100%");
-        newVideo.setAttribute("height", "100%");
-        gridListTitleVideo.append(newVideo);
-
-        // gridListTitleBar
-        const gridListTitleBar = document.createElement("div");
-        gridListTitleBar.setAttribute("class", "MuiGridListTileBar-root MuiGridListTileBar-titlePositionBottom");
-        gridListTitleVideo.append(gridListTitleBar);
-        const gridListTitleWrap = document.createElement("div");
-        gridListTitleWrap.setAttribute("class", "MuiGridListTileBar-titleWrap");
-        gridListTitleBar.append(gridListTitleWrap);
-        const gridListTitle = document.createElement("div");
-        gridListTitle.setAttribute("class", "MuiGridListTileBar-title");
-
-        console.log(stream.peerId);
-        const userName = document.createTextNode(user.name);
-        gridListTitle.append(userName);
-        gridListTitleWrap.append(gridListTitle);
-
-        jsRemoteStream?.append(gridListTitleRoot);
-        await newVideo.play().catch(console.error);
-      });
-      // for closing room members
-      room.on("peerLeave", (peerId) => {
-        const remoteVideoContainer = document.getElementById(`${peerId}`);
-        const remoteVideoElement = document.querySelector<HTMLVideoElement>(`#js-local-stream-${peerId}`);
-
-        if (remoteVideoElement == null) return;
-        if (remoteVideoContainer == null) return;
-        const remoteStream = remoteVideoElement.srcObject as MediaStream;
-        remoteStream.getTracks().forEach((track: any) => {
-          return track.stop();
-        });
-        remoteVideoElement.srcObject = null;
-        remoteVideoContainer.remove();
-
-        console.log(`=== ${peerId} left ===\n`);
-      });
-
-      // for closing myself
-      room.once("close", () => {
-        console.log("== You left ===\n");
-        jsRemoteStream?.querySelectorAll("li:not(.my-video)").forEach((remoteVideoContainer) => {
-          const remoteVideoElement = remoteVideoContainer.children[0].children[0] as HTMLVideoElement;
-          if (remoteVideoElement == null) return;
-          const remoteStream = remoteVideoElement.srcObject as MediaStream;
-          remoteStream.getTracks().forEach((track: any) => {
-            return track.stop();
-          });
-          remoteVideoElement.srcObject = null;
-          remoteVideoContainer.remove();
-        });
-      });
-    });
-
-    window.addEventListener("beforeunload", (event) => {
-      // Cancel the event as stated by the standard.
-      event.preventDefault();
-      LeaveTriggerClick(true).then(() => {
-        return 0;
-      });
-    });
-
-    jsLeaveTrigger?.addEventListener(
-      "click",
-      async (event) => {
-        event.preventDefault();
-        room.close();
-        await LeaveTriggerClick(false);
-      },
-      { once: true },
-    );
-    return;
-  };
-  const LeaveTriggerClick = async (flag) => {
-    // 退出処理
-    /*const user = await getCurrentUser();
-        const userDocument = await selectUser(user.uid);
-        await updateRoomDocumentWhenLeaved(Number(cid), roomId, userDocument);
-    
-        await localStreamOff();
-    
-        if (flag) {
-          router.push("/");
-        } else {
-          router.push(`/categories/${cid}`);
-        }*/
-  };
+  const roomId = props.rid as string;
+  const currentUser = useSelector((state: StoreState)=> {return userSelector.getCurrentUser(state);});
+  const currentPeers = useSelector((state: StoreState) => { return roomPagePeerSelector.getByRoomId(state, roomId);});
+  const localPeer = useSelector((state: StoreState ) => { return roomPagePeerSelector.getLocalPeer(state, roomId);});
+  const currentRoom = useSelector((state: StoreState) => { return roomSelector.getById(state, roomId);});
 
   // ルームの情報を取得、ページを開くたびに取得でok (現状ページをまたがないのでreduxは使わない)
   useEffect(() => {
     (async (): Promise<void> => {
-      const authToken = LoginController.getInfomation().authToken;
-      if (authToken == null) {
-        router.push("/logign/");
-      }
-      if (roomId == null) {
-        router.push("/");
-      }
-      const token = LoginController.getInfomation().authToken;
-      if (token == null || currentUser == null) {
-        router.push("/loging/");
-        return;
-      }
-      await dispatch(asyncFetchCurrentUser({ apiKey: authToken! }));
-      const api = getVoiceChatApi(authToken!);
-      const room = await api.getRoomsRoomId({ roomId: (typeof roomId! == typeof ["", ""] ? roomId![0] : roomId!) as string });
-      setRoomName(room.title);
-      console.log(`user_uid: ${currentUser?.uid}`);
       if (currentUser?.uid === "") return;
-      setPeer(new Peer(currentUser?.uid.toString(), { key: config.key.SKYWAY_APIKEY }));
+      if(peer == null){
+        setPeer(new Peer(currentUser?.uid.toString(), { key: config.key.SKYWAY_APIKEY }));
+      }
+      if(!localStream) return;
+      let room;
+      peer.on("open", async (id) => {
+        room = peer.joinRoom(roomId, {
+          mode: "mesh",
+          stream: localStream,
+        });
+        const newPeer: PeerEntity = {
+          id: id,
+          userId: currentUser?.id.toString() || "",
+          isMute: false,
+          stream: null,
+          playState: "stop",
+        };
+        dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId, peer: newPeer, isLocal: true }));
+        room.once("open", () => {
+          console.log("=== You joined ===\n");
+          dispatch(roomPeerSlice.actions.updateByPeerId({
+             roomId: roomId, peerId: id, updateData:{
+                stream: localStream,
+                playState: "start",
+              }, 
+            }));
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        room.on("peerJoin", (peerId: any) => {
+          console.log(`=== ${peerId} joined ===\n`);
+        });
+  
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        room.on("stream", async (stream: any) => {
+          console.log("stream");
+          if (stream.peerId == currentUser?.uid) {
+            return;
+          }
+          const authToken = LoginController.getInfomation().authToken;
+          if (authToken == null) {
+            router.push("/loging/");
+          }
+          const api = getVoiceChatApi(authToken!);
+          const user = await api.getApiUsersUserId({ userId: stream.peerId });
+          if (!user) return;
+          dispatch(userSlice.actions.addOrUpdateUser({ newUser: { ...user, uid: stream.peerId } }));
+  
+          const newPeer: PeerEntity = {
+            id: stream.peerId,
+            userId: user.id.toString(),
+            isMute: false,
+            stream: stream,
+            playState: "start",
+          };
+          dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId! as string, peer: newPeer, isLocal: false }));
+  
+        });
+        // for closing room members
+        room.on("peerLeave", (peerId) => {
+          dispatch(roomPeerSlice.actions.updateByPeerId({ roomId: roomId!,peerId, updateData: { playState: "stop" } }));
+          dispatch(roomPeerSlice.actions.removePeer({ roomId: roomId!, peerId: peerId }));
+          console.log(`=== ${peerId} left ===\n`);
+        });
+  
+        // for closing myself
+        room.once("close", () => {
+          console.log("== You left ===\n");
+          currentPeers.forEach((peer) => {
+            const newPeer = Object.assign(peer, { playState: "stop" });
+            dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId!, peer: newPeer, isLocal: false }));
+          });
+        });
+      });
     })();
-  }, [roomId, router, currentUser, Peer]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, router, currentUser, dispatch, localStream, peer]);
 
   useEffect(() => {
     (async (): Promise<void> => {
       if (peer) {
         await localStreamSetting();
-        await joinToRoom();
       }
     })();
-  }, [peer, localStreamRef]);
+  }, [peer]);
 
   const localStreamSetting = async (): Promise<void> => {
-    if (localStreamRef == null) return;
-    if (localStreamRef.current == null) return;
-    localStreamRef.current.srcObject = await navigator.mediaDevices.getUserMedia({
+    const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: false,
     });
-    await localStreamRef.current.play();
+    setLocalStream(stream);
   };
-  const localStreamOff = (): void => {
-    // ローカルストリームを複数回オン, オフにしたとき, current = nullになるため
-    if (localStreamRef.current) {
-      if (localStreamRef.current.srcObject instanceof MediaStream) {
-        localStreamRef.current.srcObject.getTracks().forEach((track) => {
-          return track.stop();
-        });
-      }
-    }
-  };
-  return (
-    <Container maxWidth="lg">
-      <Card>
-        <GridList id="js-remote-streams" cols={2}>
-          <GridListTile cols={2} className="my-video">
-            <h1>{roomName}</h1>
-          </GridListTile>
-          <GridListTile className={"my-video"}>
-            <video id="js-local-stream" muted ref={localStreamRef} playsInline width="100%" height="100%" />
-            <GridListTileBar title={currentUser?.name} />
-          </GridListTile>
-        </GridList>
 
-        <div>
-          <Button variant="contained" id="js-leave-trigger" color="secondary">
-            退出する
-          </Button>
-        </div>
-      </Card>
-    </Container>
+  const renderLocalRoom =  useCallback((): JSX.Element | void=> {
+    if(currentUser && localPeer){
+      const props: RoomUserCardProps = { 
+        userId: currentUser?.id ,
+        isMute: false,
+        isVoicing: false,
+        stream: localPeer.stream,
+        volume: 50,
+        playState: localPeer.playState,
+      };
+      console.log(localPeer.stream);
+      return (
+        <RoomUserCard key={currentUser?.uid} {...props}/>
+      );
+  }},[localPeer, currentUser]);
+  return (
+    <MainViewWrapper maxWidth="lg">
+      <VoiceChatViewWrapper>
+        <VoiceChatTitle>{currentRoom.title}</VoiceChatTitle>        
+        <VoiceChatPeers>
+          {
+              renderLocalRoom()
+          }
+          
+          {currentPeers.filter((peer)=>{ return peer.id != currentUser?.uid;}).map((peer) =>{
+            const props: RoomUserCardProps = {
+              userId: parseInt(peer.userId),
+              isMute: peer.isMute,
+              isVoicing: false,
+              stream: peer.stream,
+              volume: 50,
+              playState: "start",
+
+            };
+            return (
+              <RoomUserCard key={peer.userId} {...props}  ></RoomUserCard>
+            );
+          })}
+        </VoiceChatPeers>
+      </VoiceChatViewWrapper>
+    </MainViewWrapper>
   );
-}
+
+  
+
+};
+
+export default Room;

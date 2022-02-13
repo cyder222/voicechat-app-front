@@ -1,5 +1,10 @@
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { StoreState } from "../../../redux/create-store";
+import { userSelector } from "../../../redux/db/user/selectors";
 import IconButton from "../../atomic/button/icon-button/icon-button";
+import VideoElement from "../video-element/video-element";
 
 const CardWrapper = styled.div`
   display: flex;
@@ -24,20 +29,24 @@ const FlexRow = styled.div`
 `;
 
 export interface RoomUserCardProps {
-  name: string;
+  userId: number;
   image?: string | null;
   volume: number;
   isMute: boolean;
   isVoicing: boolean;
+  stream: MediaProvider | null;
+  playState: "start" | "stop"
   width?: string;
   height?: string;
-};
+}
 
 export const RoomUserCard = (props: RoomUserCardProps): JSX.Element => {
+  const user = useSelector((state: StoreState) => {return userSelector.getById(state, props.userId);});
   return(
   <CardWrapper>
-    <Name>{props.name}</Name>
+    <Name>{user?.name}</Name>
     <UserImage src={props.image != null ? props.image : "/img/default-user.png"}></UserImage>
+    <VideoElement customSrcObject={props.stream} playState={props.playState}></VideoElement>
     <FlexRow>
       <IconButton src={"/img/speaker-normal.svg"} width={"48px"} height={"48px"}></IconButton>
       <IconButton src={"/img/setting_btn.svg"} width={"48px"} height={"48px"}></IconButton>
@@ -45,3 +54,5 @@ export const RoomUserCard = (props: RoomUserCardProps): JSX.Element => {
   </CardWrapper>
   );
 };
+
+export default RoomUserCard;

@@ -3,7 +3,7 @@ import { UserEntity } from "../user/slice";
 import { RoomEntity } from "./slice";
 
 export const roomSelector = {
-  getById: (state: StoreState, roomId: number): RoomEntity => {
+  getById: (state: StoreState, roomId: string): RoomEntity => {
     return state.room.rooms[roomId];
   },
   getRoomUsersByRoomId: (state: StoreState, roomId: number): UserEntity[] => {

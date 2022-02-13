@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { HYDRATE } from "next-redux-wrapper";
 import { Room } from "../../../codegen/api/fetch/models/Room";
 import { asyncFetchRooms } from "./async-actions";
 
@@ -29,9 +30,14 @@ const roomSlice = createSlice({
     },
     updateRoom: (state, action: PayloadAction<{ room: RoomEntity }>) => {
       const room = action.payload.room;
-      const newRooms = {};
-      newRooms[room.id] = room;
-      state.rooms = Object.assign(state.rooms, newRooms);
+      room.description === undefined ? room.description = "" : null;
+      room.mainLangage === undefined ? room.mainLangage = "" : null;
+      room.category === undefined ? room.category = { id: 0, name:"なし" }: null;
+      room.currentUserNum === undefined ? room.currentUserNum = 0 : null;
+      room.maxUserNum === undefined ? room.maxUserNum = 0 : null;
+
+      state.rooms[room.roomIdentity] = room;
+
     },
   },
   extraReducers: (builder) => {
@@ -43,6 +49,13 @@ const roomSlice = createSlice({
       }, {});
       state.rooms = Object.assign(state.rooms, mapedRoom);
       return state;
+    });
+    builder.addCase(HYDRATE, (state, action: any) => {
+      console.log(action.payload.room);
+      return {
+          ...state,
+          ...action.payload.room,
+      };
     });
   },
 });

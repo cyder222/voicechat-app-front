@@ -22,6 +22,7 @@ const CreateRoomDialogModule: VFC<createRoomDialogProps> = (props: createRoomDia
   const [open, setOpen] = React.useState(false);
   const [roomName, setRoomName] = React.useState("");
   const [category, setCategory] = React.useState("All");
+  const [roomDescription, setRoomDescription] = React.useState("");
 
   const router = useRouter();
 

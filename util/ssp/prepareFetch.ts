@@ -24,7 +24,7 @@ export type GetServerSidePropsContext<Q extends ParsedUrlQuery = ParsedUrlQuery>
 }
 
 type InnerGetServerSideProps<P extends { [key: string]: unknown }> = (
-    context: GetServerSidePropsContext
+    context: GetServerSidePropsContext, store?: EnhancedStore
   ) => Promise<{ props: P }>
 
   
@@ -50,12 +50,11 @@ export const prepareSSP = <P extends { [key: string]: unknown }>(
         token = parsedCookie["LoginControllerAuthToken"];
       }
       if(!token) {
-        console.log("tokenがない");
         if(forceAuth){
           res.setHeader("Location", "/loging");
           res.statusCode = 307;
         }
-        return inner ? inner(ctx) : { props: {} };
+        return inner ? inner(ctx, store) : { props: {} };
       }
 
       const api = getVoiceChatApi(token);
@@ -67,12 +66,12 @@ export const prepareSSP = <P extends { [key: string]: unknown }>(
           res.setHeader("Location", "/loging");
           res.statusCode = 307;
         }
-        return inner ? inner(ctx) : { props: {} };
+        return inner ? await inner(ctx, store) : { props: {} };
       }
 
       const currentUser = await currentUserResponse.value();
       currentUser.nickname = currentUser.nickname ? currentUser.nickname : "";
       store?.dispatch(userSlice.actions.setCurrentUser({ newUser: currentUser }));
-      return inner ? inner(ctx) : { props: { } };
+      return inner ? await inner(ctx, store) : { props: { } };
     };
   };
