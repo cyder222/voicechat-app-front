@@ -38,7 +38,7 @@
     "redux": "^4.1.0",
     "redux-logger": "^3.0.6",
     "skyway-js": "^4.4.1",
-    "standardized-audio-context": "^25.1.9",
+    "standardized-audio-context": "^25.3.21",
     "styled-components": "^5.3.1",
     "styled-reset": "^4.3.4",
     "voice-activity-detection": "^0.0.5"
