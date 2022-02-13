@@ -32,7 +32,7 @@ const roomSlice = createSlice({
       const room = action.payload.room;
       room.description === undefined ? room.description = "" : null;
       room.mainLangage === undefined ? room.mainLangage = "" : null;
-      room.category === undefined ? room.category = null : null;
+      room.category === undefined ? room.category = { id: 0, name:"なし" }: null;
       room.currentUserNum === undefined ? room.currentUserNum = 0 : null;
       room.maxUserNum === undefined ? room.maxUserNum = 0 : null;
 
