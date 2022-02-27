@@ -101,7 +101,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
 
             // 特徴量取り出し
             console.time("extract");
-            const { f0, fft_size, spectral, aperiodicity } = worldWrapper.FeatureExtract(buffer!.getHeapAddress());
+            const { f0, fft_size, aperiodicity } = worldWrapper.FeatureExtract(buffer!.getHeapAddress());
 
             console.timeEnd("extract");
             const convF0 = f0.map((value: number) => {
@@ -136,19 +136,9 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
             const flatNewMcep = ([] as Array<number>).concat(...newMcep);
             const mcepBuffer = new HeapAudioBuffer(worldjs, 128 * 40);
             mcepBuffer.getChannelView().set(flatNewMcep);
-            const tmpFilteredMcep = featureConverter.merlinPostFilterToMcArray(mcepBuffer.getHeapAddress(),  40, 128, 0.41000000000000003, 511, 1024, 1.4).mc;
-
-            const flatFilteredMcep =  [];
-            for( let i = 0 ; i<tmpFilteredMcep.length; i++){
-                flatFilteredMcep.push(...tmpFilteredMcep[i]);
-            }
             console.timeEnd("melfilter");
-            
-            const filteredMcepBuffer = new HeapAudioBuffer(worldjs, 128 * 40);
-            filteredMcepBuffer.getChannelView().set(flatFilteredMcep);
-
             console.time("mcarray2sp");
-            const convertedSp = featureConverter.mcArray2SpArray(filteredMcepBuffer.getHeapAddress(), 40, 128, 0.41000000000000003, 1024).sp;
+            const convertedSp = featureConverter.mcArray2SpArray(mcepBuffer.getHeapAddress(), 40, 128, 0.41000000000000003, 1024).sp;
             console.timeEnd("mcarray2sp");
 
             console.time("synthe");
