@@ -11,6 +11,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "next": "11",
     "standardized-audio-context": "^25.1.9"
   },
   "devDependencies": {
