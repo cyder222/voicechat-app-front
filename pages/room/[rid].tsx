@@ -1,4 +1,3 @@
-import { Button, Card, Container, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
 import { useRouter } from "next/router";
 import { parseCookies } from "nookies";
 import React, { useCallback, useEffect, useRef, useState } from "react";
