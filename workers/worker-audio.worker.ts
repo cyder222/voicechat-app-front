@@ -15,7 +15,8 @@ let f0mul: number;
 let onnxSession: InferenceSession;
 let asrScaler: {X_mean: Array<number>, X_scale: Array<number>, X_var: Array<number>};
 let vcScaler: {Y_mean: Array<number>, Y_scale: Array<number>, Y_var: Array<number>};
-
+let f0Jvs: any;
+const currentJvs = 4;
 function createMySessionOptions() {
     // session options: please refer to the other example for details usage for session options
     return { executionProviders: ["wasm"] };
@@ -39,11 +40,16 @@ ctx.onmessage = async (ev: MessageEvent): Promise<void> => {
             worldWrapper = new worldjs.WorldWrapper(WorkerConfig.kernelBufferSize, 16000, 5.0);
             featureConverter = new worldjs.FeatureConverter();
             console.log("using worldjs backend functions");
-                
-            onnxSession = await InferenceSession.create("/workers/lib/ppgvc_16k_batch1.onnx", options);
-
+            try{
+                onnxSession = await InferenceSession.create("/workers/lib/ppgvc_jvs001.onnx", options);
+            }catch(e){
+                console.log(e);
+            }
+            console.log("onnx loaded");
             asrScaler = await (await fetch("/workers/lib/scale/asr_scaler.json")).json();
-            vcScaler = await (await fetch("/workers/lib/scale/vc_scaler.json")).json();
+            vcScaler = await (await fetch("/workers/lib/scale/vc-multi_scaler.json")).json();
+
+            f0Jvs = await (await fetch("/workers/lib/scale/f0_jvs.json")).json();
 
             f0mul = 1.0;
             break;
@@ -90,6 +96,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
     if(!onnxSession) return;
     if(!asrScaler) return;
     if(!vcScaler) return;
+    if(!f0Jvs) return;
     switch (type) {
         case WorkerWorkletMessages.NewInputsAvailable: {
             console.time("audiowork");
@@ -118,7 +125,10 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
             const TInputArray = transpose(inputArray);
             const flatInputArray = [].concat(...TInputArray);
             const inputTensor = new Tensor("float32",[].concat(flatInputArray),[1,40,128]);
-            const feeds = { 0: inputTensor };
+            const hotArray = Array(5).fill(0);
+            hotArray[currentJvs - 1] = 1;
+            const hotVector = new Tensor("uint8", hotArray,[1,100]);
+            const feeds = { 0: inputTensor, 1: hotVector };
             console.time("onnx");
             const results = await onnxSession.run(feeds);
             console.timeEnd("onnx");
@@ -143,7 +153,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
 
             console.time("synthe");
 
-            const val = worldWrapper.Synthesis( convF0, convertedSp  , aperiodicity,fft_size, 16000, 5.0);
+            const val = worldWrapper.Synthesis( f0Jvs["jvs004"], convertedSp  , aperiodicity,fft_size, 16000, 5.0);
             console.timeEnd("synthe");
             //Module.helloAudio(buffer!.getHeapAddress(),outputBuffer!.getHeapAddress(),1, WorkerConfig.kernelBufferSize);
             const postData = {
