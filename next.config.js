@@ -13,6 +13,10 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 /** @type {(config: NextConfig) => NextConfig} */
 const nextConfig = {
+    compiler: {
+      // ssr and displayName are configured by default
+      styledComponents: true,
+    },
     env: {
       // Reference a variable that was defined in the .env file and make it available at Build Time
       TEST_VAR: process.env.TEST_VAR,
