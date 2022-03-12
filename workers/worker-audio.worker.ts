@@ -41,7 +41,7 @@ ctx.onmessage = async (ev: MessageEvent): Promise<void> => {
             featureConverter = new worldjs.FeatureConverter();
             console.log("using worldjs backend functions");
             try{
-                onnxSession = await InferenceSession.create("/workers/lib/ppgvc_jvs001.onnx", options);
+                onnxSession = await InferenceSession.create("/workers/lib/ppgvc_multi.onnx", options);
             }catch(e){
                 console.log(e);
             }
@@ -50,6 +50,7 @@ ctx.onmessage = async (ev: MessageEvent): Promise<void> => {
             vcScaler = await (await fetch("/workers/lib/scale/vc-multi_scaler.json")).json();
 
             f0Jvs = await (await fetch("/workers/lib/scale/f0_jvs.json")).json();
+            
 
             f0mul = 1.0;
             break;
@@ -111,10 +112,12 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
             const { f0, fft_size, aperiodicity } = worldWrapper.FeatureExtract(buffer!.getHeapAddress());
 
             console.timeEnd("extract");
-            const convF0 = f0.map((value: number) => {
-                return value * f0mul;
-            });
-
+            const meanF0 = f0.reduce((acc, crr) => {
+                return acc + crr;
+            }, 0)/ f0.length;
+            const targetf0 = f0Jvs["jvs00" + currentJvs];
+            const f0Rate = targetf0/meanF0;
+            const convf0 = f0.map((value) => {return value * f0Rate;} );
             console.time("mel");
             const mel = featureConverter.melspectram(buffer.getHeapAddress(), buffer.length, 16000, 512, 40, 512, 80, true).mel;
             console.timeEnd("mel");
@@ -125,15 +128,15 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
             const TInputArray = transpose(inputArray);
             const flatInputArray = [].concat(...TInputArray);
             const inputTensor = new Tensor("float32",[].concat(flatInputArray),[1,40,128]);
-            const hotArray = Array(5).fill(0);
+            const hotArray = Array(100).fill(0);
             hotArray[currentJvs - 1] = 1;
-            const hotVector = new Tensor("uint8", hotArray,[1,100]);
+            const hotVector = new Tensor("float32", hotArray,[1,100]);
             const feeds = { 0: inputTensor, 1: hotVector };
             console.time("onnx");
             const results = await onnxSession.run(feeds);
             console.timeEnd("onnx");
 
-            const genMcep = results["109"].data as Float32Array;
+            const genMcep = results["132"].data as Float32Array;
 
             const tmpGenMcep = splitArray([...genMcep], 128);
             tmpGenMcep.map((v)=>{Array.from(v);});
@@ -153,7 +156,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
 
             console.time("synthe");
 
-            const val = worldWrapper.Synthesis( f0Jvs["jvs004"], convertedSp  , aperiodicity,fft_size, 16000, 5.0);
+            const val = worldWrapper.Synthesis( convf0, convertedSp  , aperiodicity,fft_size, 16000, 5.0);
             console.timeEnd("synthe");
             //Module.helloAudio(buffer!.getHeapAddress(),outputBuffer!.getHeapAddress(),1, WorkerConfig.kernelBufferSize);
             const postData = {

@@ -79,6 +79,8 @@ const Room = (props: {rid: string}): JSX.Element => {
   const [peer, setPeer] = useState<any>(null);
 
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [localPlayState, setLocalPlayState] = useState<"start" | "stop">("start");
+  const [localVolume, setLocalVolume] = useState<number>(1.0);
 
   const router = useRouter();
   const roomId = props.rid as string;
@@ -136,7 +138,7 @@ const Room = (props: {rid: string}): JSX.Element => {
       setLocalStream(destNode.stream);
     })();
   },[currentUser]);
-  // ルームの情報を取得、ページを開くたびに取得でok (現状ページをまたがないのでreduxは使わない)
+
   useEffect(() => {
     (async (): Promise<void> => {
       if(!peer) return;
@@ -227,13 +229,20 @@ const Room = (props: {rid: string}): JSX.Element => {
         isMute: false,
         isVoicing: false,
         stream: localPeer.stream,
-        volume: 50,
-        playState: "stop",
+        volume: localVolume,
+        playState: localPlayState,
+        onClickSpeaker: ()=>{
+          if(localPlayState === "start") {
+            setLocalPlayState("stop");
+          }else{
+            setLocalPlayState("start");
+          }
+        },
       };
       return (
         <RoomUserCard key={currentUser?.uid} {...props}/>
       );
-  }},[localPeer, currentUser]);
+  }},[localPeer, currentUser, localPlayState, localVolume]);
   return (
     <MainViewWrapper maxWidth="lg">
       <VoiceChatViewWrapper>
@@ -249,7 +258,7 @@ const Room = (props: {rid: string}): JSX.Element => {
               isMute: peer.isMute,
               isVoicing: false,
               stream: peer.stream,
-              volume: 50,
+              volume: 1.0,
               playState: "start",
             };
             return (
