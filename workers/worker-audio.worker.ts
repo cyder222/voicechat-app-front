@@ -81,7 +81,7 @@ function reverseScale(values: Array<number>, mean: Array<number>, scale: Array<n
 }
 
 function splitArray<T>(array: Array<T>, part: number): T[][] {
-    const tmp = [];
+    const tmp: T[][] = [];
     for(let i = 0; i < array.length; i += part) {
         tmp.push(array.slice(i, i + part));
     }

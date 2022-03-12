@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { StoreState } from "../../../redux/create-store";
@@ -40,10 +40,12 @@ export interface RoomUserCardProps {
   height?: string;
   onClickSpeaker?: ()=>void;
   onClickSetting?: ()=>void;
+  onChangeActor?: ()=>void;
 }
 
 export const RoomUserCard = (props: RoomUserCardProps): JSX.Element => {
   const user = useSelector((state: StoreState) => {return userSelector.getById(state, props.userId);});
+  const [actor, setActor] = useState<number>(1);
   return(
   <CardWrapper>
     <Name>{user?.name}</Name>
@@ -52,6 +54,7 @@ export const RoomUserCard = (props: RoomUserCardProps): JSX.Element => {
     <FlexRow>
       <IconButton onClick={(): void=>{props.onClickSpeaker && props.onClickSpeaker();}} src={props.playState === "start" ?  "/img/speaker-normal.svg" : "/img/speaker-disable.svg"} width={"48px"} height={"48px"}></IconButton>
       <IconButton src={"/img/setting_btn.svg"} width={"48px"} height={"48px"}></IconButton>
+      <input value={actor} onChange={(e)=>{setActor(Number(e.currentTarget.value));}}></input>
     </FlexRow>
   </CardWrapper>
   );

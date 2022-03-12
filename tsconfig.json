@@ -27,7 +27,8 @@
     "incremental": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "./public/workers"
   ],
   "include": [
     "next-env.d.ts",

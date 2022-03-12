@@ -69,7 +69,7 @@ export default  function EnterRoom(props:{rid: string}): JSX.Element {
           </Typography>
           <div>
             <div>
-              <VideoElement customSrcObject={localStreamProvider} playState={playState}></VideoElement>
+              <VideoElement volume={1.0} customSrcObject={localStreamProvider} playState={playState}></VideoElement>
             </div>
             <Button
               variant="contained"
