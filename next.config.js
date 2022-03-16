@@ -13,6 +13,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 /** @type {(config: NextConfig) => NextConfig} */
 const nextConfig = {
+    productionBrowserSourceMaps: true,
     compiler: {
       // ssr and displayName are configured by default
       styledComponents: true,
