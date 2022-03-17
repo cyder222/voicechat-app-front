@@ -109,7 +109,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
 
             // 特徴量取り出し
             console.time("extract");
-            const { f0, fft_size, aperiodicity } = worldWrapper.FeatureExtract(buffer!.getHeapAddress());
+            const { f0, fft_size, aperiodicity, spectral } = worldWrapper.FeatureExtract(buffer!.getHeapAddress());
 
             console.timeEnd("extract");
             const meanF0 = f0.reduce((acc, crr) => {
@@ -156,7 +156,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
 
             console.time("synthe");
 
-            const val = worldWrapper.Synthesis( convf0, convertedSp  , aperiodicity,fft_size, 16000, 5.0);
+            const val = worldWrapper.Synthesis( convf0, convertedSp, aperiodicity,fft_size, 16000, 5.0);
             console.timeEnd("synthe");
             //Module.helloAudio(buffer!.getHeapAddress(),outputBuffer!.getHeapAddress(),1, WorkerConfig.kernelBufferSize);
             const postData = {
