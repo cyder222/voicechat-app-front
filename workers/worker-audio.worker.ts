@@ -115,7 +115,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
             const meanF0 = f0.reduce((acc, crr) => {
                 return acc + crr;
             }, 0)/ f0.length;
-            const targetf0 = f0Jvs["jvs00" + currentJvs];
+            const targetf0 = f0Jvs[`jvs${currentJvs.toString().padStart(3, "0")}`];
             const f0Rate = targetf0/meanF0;
             const convf0 = f0.map((value) => {return value * f0Rate;} );
             console.time("mel");
