@@ -7,7 +7,7 @@
   "author": "Kenta Moriuchi <moriken@kimamass.com>",
   "scripts": {
     "dev": "next",
-    "build": "next build",
+    "build-worklet": "gulp",
     "start": "next start"
   },
   "dependencies": {
