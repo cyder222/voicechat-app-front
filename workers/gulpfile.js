@@ -10,7 +10,8 @@ gulp.task("clear", function (cb) {
 
 gulp.task("build", function () {
     return gulp.src(["./*.ts", "./**/*.ts", "!./node_modules/**"])
-        .pipe(babel());
+        .pipe(babel())
+        .pipe(gulp.dest("./"));
 });
 
 gulp.task("copy", function () {
