@@ -16,7 +16,8 @@ let onnxSession: InferenceSession;
 let asrScaler: {X_mean: Array<number>, X_scale: Array<number>, X_var: Array<number>};
 let vcScaler: {Y_mean: Array<number>, Y_scale: Array<number>, Y_var: Array<number>};
 let f0Jvs: any;
-const currentJvs = 4;
+const currentJvs = 80;
+const f0Buffers: Array<Array<number>> = [[]];
 function createMySessionOptions() {
     // session options: please refer to the other example for details usage for session options
     return { executionProviders: ["wasm"] };
@@ -57,7 +58,7 @@ ctx.onmessage = async (ev: MessageEvent): Promise<void> => {
         }
         
         case WorkerWorkletMessages.UpdateWorkerPrameter: {
-            f0mul = ev.data.data;
+            f0Jvs = ev.data.data;
             console.log("update parameter");
             break;
         }
@@ -112,9 +113,13 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
             const { f0, fft_size, aperiodicity, spectral } = worldWrapper.FeatureExtract(buffer!.getHeapAddress());
 
             console.timeEnd("extract");
-            const meanF0 = f0.reduce((acc, crr) => {
+            f0Buffers.push([...f0]);
+            if(f0Buffers.length > 30) {
+                f0Buffers.shift();
+            }
+            const meanF0 = f0Buffers.flat().filter((v)=> {return v > 1;}).reduce((acc, crr) => {
                 return acc + crr;
-            }, 0)/ f0.length;
+            }, 0)/ f0Buffers.flat().filter((v) =>{ return v > 1;}).length;
             const targetf0 = f0Jvs[`jvs${currentJvs.toString().padStart(3, "0")}`];
             const f0Rate = targetf0/meanF0;
             const convf0 = f0.map((value) => {return value * f0Rate;} );
