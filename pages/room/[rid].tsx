@@ -73,7 +73,6 @@ export const getServerSideProps = wrapper.getServerSideProps((store) => {return 
  
 const Room = (props: {rid: string}): JSX.Element => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const jsLeaveTrigger = useRef(null);
   const dispatch = useDispatch();
   const [worker, setWorker] = useState<Worker | null>(null);
   const [audioContext, setAudioContext ] = useState<AudioContext | null>(null);
@@ -281,7 +280,7 @@ const Room = (props: {rid: string}): JSX.Element => {
         </VoiceChatPeers>
       </VoiceChatViewWrapper>
       <SideViewWrapper>
-      <select onChange={(e) => {
+      <select onChange={(e):void => {
         setJvsNo(Number(e.target.value));
       }}>
         {[...new Array(100).keys()].map((v) => {return <option key={v + 1} value={v + 1}>jvs{v}</option>;})}

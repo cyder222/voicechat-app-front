@@ -1,6 +1,13 @@
 import { WorkerConfig } from "./share/worker-config";
 import { WorkerWorkletMessages } from "./share/worker-events";
 
+/**
+ * AudioWorker及び、メイン関数と連携してAudioの処理を行う
+ * 役割： バッファリングと出力。具体的な処理は、workerに委任する。Workletで処理が詰まると音声が飛ぶため
+ * 1. process関数にやってくるinputsをバッファリングして、一定以上(_kernelBufferSize)たまったらworkerに処理を流す
+ * 2. workerから送られてくる変換後のバッファーを受け取ってoutputバッファーに保存していく（onWorkerPortMessage→NewOutputsAvailable)
+ * 3. process関数で、一定以上outputバッファーに出力がたまっていた時にworkletのoutputにバッファーを(workletで定義されている)output分書き込む
+ */
 class WorkerAudioProcessor extends AudioWorkletProcessor {
 
     private _kernelBufferSize = WorkerConfig.kernelBufferSize;

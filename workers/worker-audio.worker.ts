@@ -1,10 +1,16 @@
-import { format, transpose } from "mathjs";
+import { transpose } from "mathjs";
 import { InferenceSession, Tensor } from "onnxruntime-web";
 import { default as simpleWorldJS } from "./lib/WorldJS";
 import { HeapAudioBuffer } from "./lib/wasm-ringbuffer";
 import { WorkerConfig } from "./share/worker-config";
 import { WorkerWorkletMessages } from "./share/worker-events";
 
+/**
+ * AudioWorklet及び、メイン関数と連携してAudioの処理を行う
+ * 役割：実際の音変換処理を行う。
+ * 1. onnx（機械学習）周りの初期化を行う。メイン関数からworkletとの通信用ポートを受け取って、保管する
+ * 2. workletから送られてくるバッファーを受け取って、変換処理を行い、workletにメッセージとして返す
+ */
 const ctx: Worker = self as any;
 let port: MessagePort | null = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,8 +24,8 @@ let vcScaler: {Y_mean: Array<number>, Y_scale: Array<number>, Y_var: Array<numbe
 let f0Jvs: any;
 let currentJvs = 1;
 const f0Buffers: Array<Array<number>> = [[]];
-function createMySessionOptions() {
-    // session options: please refer to the other example for details usage for session options
+
+function createMySessionOptions(): { executionProviders: string[]; } {
     return { executionProviders: ["wasm"] };
 }
 
@@ -110,7 +116,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
 
             // 特徴量取り出し
             console.time("extract");
-            const { f0, fft_size, aperiodicity, spectral } = worldWrapper.FeatureExtract(buffer!.getHeapAddress());
+            const { f0, fft_size, aperiodicity } = worldWrapper.FeatureExtract(buffer!.getHeapAddress());
 
             console.timeEnd("extract");
             f0Buffers.push([...f0]);
@@ -126,8 +132,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
             console.time("mel");
             const mel = featureConverter.melspectram(buffer.getHeapAddress(), buffer.length, 16000, 512, 40, 512, 80, true).mel;
             console.timeEnd("mel");
-           // console.log(mel.length);
-           // onnx
+
             const inputArray = mel.map((float32array:Float32Array)=> {return scale([...float32array], asrScaler.X_mean, asrScaler.X_scale);});
             
             const TInputArray = transpose(inputArray);
@@ -164,7 +169,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
 
             const val = worldWrapper.Synthesis( convf0, convertedSp, aperiodicity,fft_size, 16000, 5.0);
             console.timeEnd("synthe");
-            //Module.helloAudio(buffer!.getHeapAddress(),outputBuffer!.getHeapAddress(),1, WorkerConfig.kernelBufferSize);
+
             const postData = {
                 type: WorkerWorkletMessages.NewOutputsAvailable,
                 data: new Float32Array([...val]).buffer,
