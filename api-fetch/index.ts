@@ -3,7 +3,7 @@ import { Configuration, ConfigurationParameters, DefaultApi } from "../codegen/a
 import { config } from "../config/constants";
 
 const configuration: ConfigurationParameters = { basePath: config.url.API_BASE_URL };
-export const getVoiceChatApi = (apiKey?: string): DefaultApi => {
+export const getVoiceChatApi = (apiKey?: string | null): DefaultApi => {
   if(typeof window === "undefined")
   {
     return new DefaultApi(new Configuration({ ...configuration, apiKey: `Bearer ${apiKey}`, fetchApi: nodeFetch  }));

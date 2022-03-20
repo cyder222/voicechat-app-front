@@ -1,4 +1,4 @@
-import { Button, Card, Container, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
+import { Input } from "@material-ui/core";
 import { useRouter } from "next/router";
 import { parseCookies } from "nookies";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -18,6 +18,7 @@ import userSlice, { UserEntity } from "../../redux/db/user/slice";
 import { roomPagePeerSelector } from "../../redux/page/room/peers/selectors";
 import roomPeerSlice, { PeerEntity } from "../../redux/page/room/peers/slice";
 import { prepareSSP } from "../../util/ssp/prepareFetch";
+import { WorkerWorkletMessages } from "../../workers/share/worker-events";
 
 const MainViewWrapper = styled.div`
   display: flex;
@@ -29,7 +30,10 @@ const MainViewWrapper = styled.div`
 const VoiceChatViewWrapper = styled.div`
   display: flex;
   flex-direction: column;
-
+`;
+const SideViewWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const VoiceChatTitle = styled.div`
@@ -42,16 +46,18 @@ const VoiceChatTitle = styled.div`
 
 const VoiceChatPeers = styled.div``;
 
-let Peer;
-if (process.browser) {
-  Peer = require("skyway-js");
-
-}
-
 const TextChatViewWrapper = styled.div`
   display: flex;
   flex-direction: column;
 `;
+
+let Peer;
+if (process.browser) {
+  Peer = require("skyway-js");
+}
+
+const workerPath = "../../workers/worker-audio.worker.ts";
+
 export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP(false, store, async (ctx, store)=>{
   const rid = ctx.query.rid as string;
   const parsedCookie = parseCookies(ctx);
@@ -69,17 +75,17 @@ const Room = (props: {rid: string}): JSX.Element => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const jsLeaveTrigger = useRef(null);
   const dispatch = useDispatch();
+  const [worker, setWorker] = useState<Worker | null>(null);
+  const [audioContext, setAudioContext ] = useState<AudioContext | null>(null);
+  const [jvsNo, setJvsNo] = useState<number>(1);
 
-  useEffect(() => {
-    (async (): Promise<void> => {
-      await localStreamSetting();
-    })();
-  }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [peer, setPeer] = useState<any>(null);
 
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [localPlayState, setLocalPlayState] = useState<"start" | "stop">("start");
+  const [localVolume, setLocalVolume] = useState<number>(1.0);
 
   const router = useRouter();
   const roomId = props.rid as string;
@@ -88,13 +94,67 @@ const Room = (props: {rid: string}): JSX.Element => {
   const localPeer = useSelector((state: StoreState ) => { return roomPagePeerSelector.getLocalPeer(state, roomId);});
   const currentRoom = useSelector((state: StoreState) => { return roomSelector.getById(state, roomId);});
 
-  // ルームの情報を取得、ページを開くたびに取得でok (現状ページをまたがないのでreduxは使わない)
+  useEffect(() => {
+    if (currentUser?.uid === "") return;
+    setPeer(new Peer(currentUser?.uid.toString(), { key: config.key.SKYWAY_APIKEY }));
+  },[currentUser]);
+
+  useEffect(()=>{
+    const changeJvsPostMessage = {
+      type: WorkerWorkletMessages.UpdateWorkerPrameter,
+      data: { jvsNo: jvsNo },
+    };
+    worker?.postMessage(changeJvsPostMessage);
+  },[jvsNo, worker]);
+
+  useEffect(()=> {
+    (async (): Promise<void> => {
+      console.log(currentUser);
+      if (currentUser == null) return;
+      if( currentUser.name == "") return;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false,
+      });
+      console.log("worker start");
+      const localWorker = new Worker(new URL("../../workers/worker-audio.worker.ts", import.meta.url));
+      setWorker(localWorker);
+      console.log("set worker");
+      const context = new AudioContext({ sampleRate: 16000 });
+      setAudioContext(context);
+      context.resume();
+      console.log("get audio worklet");
+      await context.audioWorklet!.addModule("/workers/worker-audio.worklet.js");
+      console.log("got audio worklet");
+
+      const { port1: workerPort, port2: workletPort } = new MessageChannel();
+      const workletInitializePost = {
+        type: WorkerWorkletMessages.WorkletInitialize,
+        data: workletPort,
+      };
+      const workerInitializePost = {
+        type: WorkerWorkletMessages.WorkerInitialize,
+        data: {
+          port: workerPort,
+          f0mul: 1.0,
+        },
+      };
+      const streamNode = new MediaStreamAudioSourceNode(context, { mediaStream: stream });
+      const destNode = new MediaStreamAudioDestinationNode(context);
+
+      const processorNode = new AudioWorkletNode!(context, "worker-worklet-processor");
+
+      processorNode.port.postMessage(workletInitializePost, [workletInitializePost.data]);
+      localWorker.postMessage(workerInitializePost, [workerInitializePost.data.port]);
+      streamNode.connect(processorNode);
+      processorNode.connect(destNode);
+      setLocalStream(destNode.stream);
+    })();
+  },[currentUser]);
+
   useEffect(() => {
     (async (): Promise<void> => {
-      if (currentUser?.uid === "") return;
-      if(peer == null){
-        setPeer(new Peer(currentUser?.uid.toString(), { key: config.key.SKYWAY_APIKEY }));
-      }
+      if(!peer) return;
       if(!localStream) return;
       let room;
       peer.on("open", async (id) => {
@@ -115,7 +175,7 @@ const Room = (props: {rid: string}): JSX.Element => {
           dispatch(roomPeerSlice.actions.updateByPeerId({
              roomId: roomId, peerId: id, updateData:{
                 stream: localStream,
-                playState: "start",
+                playState: "stop",
               }, 
             }));
         });
@@ -131,10 +191,8 @@ const Room = (props: {rid: string}): JSX.Element => {
             return;
           }
           const authToken = LoginController.getInfomation().authToken;
-          if (authToken == null) {
-            router.push("/loging/");
-          }
-          const api = getVoiceChatApi(authToken!);
+
+          const api = getVoiceChatApi(authToken);
           const user = await api.getApiUsersUserId({ userId: stream.peerId });
           if (!user) return;
           dispatch(userSlice.actions.addOrUpdateUser({ newUser: { ...user, uid: stream.peerId } }));
@@ -167,23 +225,15 @@ const Room = (props: {rid: string}): JSX.Element => {
       });
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, router, currentUser, dispatch, localStream, peer]);
+  }, [roomId, router, dispatch, localStream, peer]);
 
   useEffect(() => {
     (async (): Promise<void> => {
       if (peer) {
-        await localStreamSetting();
+        //await localStreamSetting();
       }
     })();
   }, [peer]);
-
-  const localStreamSetting = async (): Promise<void> => {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: false,
-    });
-    setLocalStream(stream);
-  };
 
   const renderLocalRoom =  useCallback((): JSX.Element | void=> {
     if(currentUser && localPeer){
@@ -192,14 +242,20 @@ const Room = (props: {rid: string}): JSX.Element => {
         isMute: false,
         isVoicing: false,
         stream: localPeer.stream,
-        volume: 50,
-        playState: localPeer.playState,
+        volume: localVolume,
+        playState: localPlayState,
+        onClickSpeaker: ()=>{
+          if(localPlayState === "start") {
+            setLocalPlayState("stop");
+          }else{
+            setLocalPlayState("start");
+          }
+        },
       };
-      console.log(localPeer.stream);
       return (
         <RoomUserCard key={currentUser?.uid} {...props}/>
       );
-  }},[localPeer, currentUser]);
+  }},[localPeer, currentUser, localPlayState, localVolume]);
   return (
     <MainViewWrapper maxWidth="lg">
       <VoiceChatViewWrapper>
@@ -215,9 +271,8 @@ const Room = (props: {rid: string}): JSX.Element => {
               isMute: peer.isMute,
               isVoicing: false,
               stream: peer.stream,
-              volume: 50,
+              volume: 1.0,
               playState: "start",
-
             };
             return (
               <RoomUserCard key={peer.userId} {...props}  ></RoomUserCard>
@@ -225,6 +280,13 @@ const Room = (props: {rid: string}): JSX.Element => {
           })}
         </VoiceChatPeers>
       </VoiceChatViewWrapper>
+      <SideViewWrapper>
+      <select onChange={(e) => {
+        setJvsNo(Number(e.target.value));
+      }}>
+        {[...new Array(100).keys()].map((v) => {return <option key={v + 1} value={v + 1}>jvs{v}</option>;})}
+      </select>
+      </SideViewWrapper>
     </MainViewWrapper>
   );
 

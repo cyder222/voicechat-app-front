@@ -1,11 +1,17 @@
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { config } from "../config/constants";
 import styles from "../styles/Home.module.css";
 
 export default function Loging() {
   const router = useRouter();
+  const [urlOrigin, setUrlOrigin] = useState("");
+
+  useEffect(()=>{
+    setUrlOrigin(window.location.origin);
+  },[]);
   return (
     <div className={styles.container}>
       <Head>
@@ -14,7 +20,7 @@ export default function Loging() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       login page
-      <a href={`${config.url.API_BASE_URL}/auth/google_oauth2?param=abc`}>ログイン</a>
+      <a href={`${config.url.API_BASE_URL}/auth/google_oauth2?return_to=${urlOrigin}`}>ログイン</a>
       <footer className={styles.footer}>
         <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"

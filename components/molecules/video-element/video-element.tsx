@@ -6,6 +6,7 @@ import React, { VideoHTMLAttributes,
 export type VideoProps = VideoHTMLAttributes<HTMLVideoElement> & {
     customSrcObject: MediaProvider | null;
     playState: "start" | "stop";
+    volume: number;
 };
   
 const Video = ({ customSrcObject, playState, ...props }: VideoProps): JSX.Element => {
@@ -43,7 +44,6 @@ const Video = ({ customSrcObject, playState, ...props }: VideoProps): JSX.Elemen
                 }
             }
     },[playState, node]);
-
 
     return (
         <>

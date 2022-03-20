@@ -7,10 +7,11 @@
   "author": "Kenta Moriuchi <moriken@kimamass.com>",
   "scripts": {
     "dev": "next",
-    "build": "next build",
+    "build-worklet": "gulp",
     "start": "next start"
   },
   "dependencies": {
+    "next": "11",
     "standardized-audio-context": "^25.1.9"
   },
   "devDependencies": {
@@ -25,6 +26,7 @@
     "babel-plugin-add-import-extension": "^1.5.0",
     "babel-plugin-extension-resolver": "^1.0.12",
     "babel-plugin-replace-import-extension": "^1.1.0",
+    "del": "^6.0.0",
     "eslint": "^7.1.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-react": "^7.20.0",
