@@ -1,3 +1,4 @@
+import { Input } from "@material-ui/core";
 import { useRouter } from "next/router";
 import { parseCookies } from "nookies";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -29,7 +30,10 @@ const MainViewWrapper = styled.div`
 const VoiceChatViewWrapper = styled.div`
   display: flex;
   flex-direction: column;
-
+`;
+const SideViewWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const VoiceChatTitle = styled.div`
@@ -73,6 +77,7 @@ const Room = (props: {rid: string}): JSX.Element => {
   const dispatch = useDispatch();
   const [worker, setWorker] = useState<Worker | null>(null);
   const [audioContext, setAudioContext ] = useState<AudioContext | null>(null);
+  const [jvsNo, setJvsNo] = useState<number>(1);
 
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,6 +98,14 @@ const Room = (props: {rid: string}): JSX.Element => {
     if (currentUser?.uid === "") return;
     setPeer(new Peer(currentUser?.uid.toString(), { key: config.key.SKYWAY_APIKEY }));
   },[currentUser]);
+
+  useEffect(()=>{
+    const changeJvsPostMessage = {
+      type: WorkerWorkletMessages.UpdateWorkerPrameter,
+      data: { jvsNo: jvsNo },
+    };
+    worker?.postMessage(changeJvsPostMessage);
+  },[jvsNo, worker]);
 
   useEffect(()=> {
     (async (): Promise<void> => {
@@ -267,6 +280,13 @@ const Room = (props: {rid: string}): JSX.Element => {
           })}
         </VoiceChatPeers>
       </VoiceChatViewWrapper>
+      <SideViewWrapper>
+      <select onChange={(e) => {
+        setJvsNo(Number(e.target.value));
+      }}>
+        {[...new Array(100).keys()].map((v) => {return <option key={v + 1} value={v + 1}>jvs{v}</option>;})}
+      </select>
+      </SideViewWrapper>
     </MainViewWrapper>
   );
 

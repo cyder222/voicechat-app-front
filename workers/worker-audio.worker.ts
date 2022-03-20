@@ -16,7 +16,7 @@ let onnxSession: InferenceSession;
 let asrScaler: {X_mean: Array<number>, X_scale: Array<number>, X_var: Array<number>};
 let vcScaler: {Y_mean: Array<number>, Y_scale: Array<number>, Y_var: Array<number>};
 let f0Jvs: any;
-const currentJvs = 80;
+let currentJvs = 1;
 const f0Buffers: Array<Array<number>> = [[]];
 function createMySessionOptions() {
     // session options: please refer to the other example for details usage for session options
@@ -58,7 +58,7 @@ ctx.onmessage = async (ev: MessageEvent): Promise<void> => {
         }
         
         case WorkerWorkletMessages.UpdateWorkerPrameter: {
-            f0Jvs = ev.data.data;
+            currentJvs = ev.data.data.jvsNo;
             console.log("update parameter");
             break;
         }
@@ -134,6 +134,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
             const flatInputArray = [].concat(...TInputArray);
             const inputTensor = new Tensor("float32",[].concat(flatInputArray),[1,40,128]);
             const hotArray = Array(100).fill(0);
+            console.log(currentJvs);
             hotArray[currentJvs - 1] = 1;
             const hotVector = new Tensor("float32", hotArray,[1,100]);
             const feeds = { 0: inputTensor, 1: hotVector };
