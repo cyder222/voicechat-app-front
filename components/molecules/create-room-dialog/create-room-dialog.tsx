@@ -51,7 +51,7 @@ const CreateRoomDialogModule: VFC<createRoomDialogProps> = (props: createRoomDia
   const createRoom = async (event: any): Promise<void> => {
     event.preventDefault();
     if (LoginController.getInfomation().authToken == null) {
-      router.push("/logging/");
+      router.push("/loging/");
       return;
     }
     const apiKey: string = LoginController.getInfomation().authToken!;
