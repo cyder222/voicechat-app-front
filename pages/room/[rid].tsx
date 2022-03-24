@@ -58,7 +58,7 @@ if (process.browser) {
 
 const workerPath = "../../workers/worker-audio.worker.ts";
 
-export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP(false, store, async (ctx, store)=>{
+export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP({ forceAuth: true }, store, async (ctx, store)=>{
   const rid = ctx.query.rid as string;
   const parsedCookie = parseCookies(ctx);
   const token = parsedCookie["LoginControllerAuthToken"];
@@ -167,6 +167,7 @@ const Room = (props: {rid: string}): JSX.Element => {
           isMute: false,
           stream: null,
           playState: "stop",
+          volume: 1.0,
         };
         dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId, peer: newPeer, isLocal: true }));
         room.once("open", () => {
@@ -202,6 +203,7 @@ const Room = (props: {rid: string}): JSX.Element => {
             isMute: false,
             stream: stream,
             playState: "start",
+            volume: 1.0,
           };
           dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId! as string, peer: newPeer, isLocal: false }));
   
@@ -244,10 +246,10 @@ const Room = (props: {rid: string}): JSX.Element => {
         volume: localVolume,
         playState: localPlayState,
         onClickSpeaker: ()=>{
-          if(localPlayState === "start") {
-            setLocalPlayState("stop");
+          if(localVolume > 0) {
+            setLocalVolume(0.0);
           }else{
-            setLocalPlayState("start");
+            setLocalVolume(1.0);
           }
         },
       };
@@ -270,8 +272,14 @@ const Room = (props: {rid: string}): JSX.Element => {
               isMute: peer.isMute,
               isVoicing: false,
               stream: peer.stream,
-              volume: 1.0,
+              volume: peer.volume,
               playState: "start",
+              onClickSpeaker: ()=>{
+                if(peer.id){
+                  const volume = peer.volume > 0 ? 0.0 : 1.0;
+                  dispatch(roomPeerSlice.actions.updateByPeerId({ roomId: roomId!,peerId: peer.id, updateData: { volume } }));
+                }
+              },
             };
             return (
               <RoomUserCard key={peer.userId} {...props}  ></RoomUserCard>

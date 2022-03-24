@@ -19,7 +19,7 @@ import { prepareSSP } from "../../util/ssp/prepareFetch";
 
 
 
-export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP(false, store, async (ctx, store)=>{
+export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP({ forceAuth: true }, store, async (ctx, store)=>{
   const rid = ctx.query.rid as string;
   const parsedCookie = parseCookies(ctx);
   const token = parsedCookie["LoginControllerAuthToken"];

@@ -8,6 +8,7 @@ export interface PeerEntity {
   isMute: boolean;
   stream: any;
   playState: "start" | "stop";
+  volume: number;
 }
 
 export interface RoomPeerEntity {

@@ -120,7 +120,7 @@ async function workerPortOnMessage(ev: MessageEvent): Promise<void> {
 
             console.timeEnd("extract");
             f0Buffers.push([...f0]);
-            if(f0Buffers.length > 30) {
+            if(f0Buffers.length > 10) {
                 f0Buffers.shift();
             }
             const meanF0 = f0Buffers.flat().filter((v)=> {return v > 1;}).reduce((acc, crr) => {
