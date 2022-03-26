@@ -167,6 +167,7 @@ const Room = (props: {rid: string}): JSX.Element => {
           isMute: false,
           stream: null,
           playState: "stop",
+          volume: 1.0,
         };
         dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId, peer: newPeer, isLocal: true }));
         room.once("open", () => {
