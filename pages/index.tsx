@@ -77,7 +77,7 @@ const MainViewFormWrapper = styled.div`
 `;
 
 
-export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP(false, store);} );
+export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP({ forceAuth: false }, store);} );
 
 export default function Home(props): JSX.Element {
   const Title = styled.h1`

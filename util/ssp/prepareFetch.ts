@@ -27,9 +27,13 @@ type InnerGetServerSideProps<P extends { [key: string]: unknown }> = (
     context: GetServerSidePropsContext, store?: EnhancedStore
   ) => Promise<{ props: P }>
 
+export type prepareOptions = {
+    forceAuth?: boolean;
+    authReturnUrl?: string;
+};
   
 export const prepareSSP = <P extends { [key: string]: unknown }>(
-    forceAuth = false, store?: EnhancedStore, inner?: InnerGetServerSideProps<P>,
+    prepareOptions: prepareOptions={}, store?: EnhancedStore, inner?: InnerGetServerSideProps<P>,
   ): GetServerSideProps => {
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -37,21 +41,15 @@ export const prepareSSP = <P extends { [key: string]: unknown }>(
       const {
         req: { headers },
         res,
-        query,
       } = ctx;
       // This allows you to set a custom default initialState
-      let token;
-      if(query.auth_token && query.uid){
-        setCookie(ctx, "LoginControllerAuthToken", query.auth_token as string);
-        setCookie(ctx, "LoginControllerUid", query.uid as string);
-        token = query.auth_token;
-      }else{
-        const parsedCookie = parseCookies(ctx);
-        token = parsedCookie["LoginControllerAuthToken"];
-      }
+      const parsedCookie = parseCookies(ctx);
+      const token = parsedCookie["LoginControllerAuthToken"];
+
       if(!token) {
-        if(forceAuth){
-          res.setHeader("Location", "/loging");
+        if(prepareOptions.forceAuth){
+          const retUrl = prepareOptions.authReturnUrl || ctx.req.url || "/";
+          res.setHeader("Location", `/loging/${encodeURIComponent(retUrl)}`);
           res.statusCode = 307;
         }
         return inner ? inner(ctx, store) : { props: {} };
@@ -62,8 +60,9 @@ export const prepareSSP = <P extends { [key: string]: unknown }>(
       try{
        currentUserResponse = await api.getUsersCurrentRaw();
       }catch(e){
-        if(forceAuth){
-          res.setHeader("Location", "/loging");
+        if(prepareOptions.forceAuth){
+          const retUrl = prepareOptions.authReturnUrl || ctx.req.url || "/";
+          res.setHeader("Location", `/loging/${encodeURIComponent(retUrl)}`);
           res.statusCode = 307;
         }
         return inner ? await inner(ctx, store) : { props: {} };

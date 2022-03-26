@@ -51,7 +51,7 @@ export const RoomUserCard = (props: RoomUserCardProps): JSX.Element => {
     <UserImage src={props.image != null ? props.image : "/img/default-user.png"}></UserImage>
     <VideoElement volume={props.volume} customSrcObject={props.stream} playState={props.playState}></VideoElement>
     <FlexRow>
-      <IconButton onClick={(): void=>{props.onClickSpeaker && props.onClickSpeaker();}} src={props.playState === "start" ?  "/img/speaker-normal.svg" : "/img/speaker-disable.svg"} width={"48px"} height={"48px"}></IconButton>
+      <IconButton onClick={(): void=>{props.onClickSpeaker?.();}} src={props.volume > 0 ?  "/img/speaker-normal.svg" : "/img/speaker-disable.svg"} width={"48px"} height={"48px"}></IconButton>
       <IconButton src={"/img/setting_btn.svg"} width={"48px"} height={"48px"}></IconButton>
     </FlexRow>
   </CardWrapper>

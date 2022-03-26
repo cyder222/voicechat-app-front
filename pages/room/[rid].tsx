@@ -58,7 +58,7 @@ if (process.browser) {
 
 const workerPath = "../../workers/worker-audio.worker.ts";
 
-export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP(false, store, async (ctx, store)=>{
+export const getServerSideProps = wrapper.getServerSideProps((store) => {return prepareSSP({ forceAuth: true }, store, async (ctx, store)=>{
   const rid = ctx.query.rid as string;
   const parsedCookie = parseCookies(ctx);
   const token = parsedCookie["LoginControllerAuthToken"];
@@ -94,9 +94,82 @@ const Room = (props: {rid: string}): JSX.Element => {
   const currentRoom = useSelector((state: StoreState) => { return roomSelector.getById(state, roomId);});
 
   useEffect(() => {
-    if (currentUser?.uid === "") return;
-    setPeer(new Peer(currentUser?.uid.toString(), { key: config.key.SKYWAY_APIKEY }));
-  },[currentUser]);
+    if (!currentUser?.uid) return;
+    if(!localStream) return;
+    console.log("setPeer");
+
+    const peer = new Peer(currentUser?.uid.toString(), { key: config.key.SKYWAY_APIKEY });
+    setPeer(peer);
+    console.log("peer settings");   
+    peer.on("open", async (id) => {
+      console.log("o");
+      const room = peer.joinRoom(roomId, {
+        mode: "mesh",
+        stream: localStream,
+      });
+      const newPeer: PeerEntity = {
+        id: id,
+        userId: currentUser?.id.toString() || "",
+        isMute: false,
+        stream: null,
+        playState: "stop",
+        volume: 1.0,
+      };
+      dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId, peer: newPeer, isLocal: true }));
+      room.once("open", () => {
+        console.log("=== You joined ===\n");
+        dispatch(roomPeerSlice.actions.updateByPeerId({
+           roomId: roomId, peerId: id, updateData:{
+              stream: localStream,
+              playState: "stop",
+            }, 
+          }));
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      room.on("peerJoin", (peerId: any) => {
+        console.log(`=== ${peerId} joined ===\n`);
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      room.on("stream", async (stream: any) => {
+        console.log("stream");
+        if (stream.peerId == currentUser?.uid) {
+          return;
+        }
+        const authToken = LoginController.getInfomation().authToken;
+
+        const api = getVoiceChatApi(authToken);
+        const user = await api.getApiUsersUserId({ userId: stream.peerId });
+        if (!user) return;
+        dispatch(userSlice.actions.addOrUpdateUser({ newUser: { ...user, uid: stream.peerId } }));
+
+        const newPeer: PeerEntity = {
+          id: stream.peerId,
+          userId: user.id.toString(),
+          isMute: false,
+          stream: stream,
+          playState: "start",
+          volume: 1.0,
+        };
+        dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId! as string, peer: newPeer, isLocal: false }));
+
+      });
+      // for closing room members
+      room.on("peerLeave", (peerId) => {
+        dispatch(roomPeerSlice.actions.updateByPeerId({ roomId: roomId!,peerId, updateData: { playState: "stop" } }));
+        dispatch(roomPeerSlice.actions.removePeer({ roomId: roomId!, peerId: peerId }));
+        console.log(`=== ${peerId} left ===\n`);
+      });
+
+      // for closing myself
+      room.once("close", () => {
+        console.log("== You left ===\n");
+        currentPeers.forEach((peer) => {
+          const newPeer = Object.assign(peer, { playState: "stop" });
+          dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId!, peer: newPeer, isLocal: false }));
+        });
+      });
+  });},[currentUser, localStream,dispatch]);
 
   useEffect(()=>{
     const changeJvsPostMessage = {
@@ -140,100 +213,22 @@ const Room = (props: {rid: string}): JSX.Element => {
       };
       const streamNode = new MediaStreamAudioSourceNode(context, { mediaStream: stream });
       const destNode = new MediaStreamAudioDestinationNode(context);
-
       const processorNode = new AudioWorkletNode!(context, "worker-worklet-processor");
 
       processorNode.port.postMessage(workletInitializePost, [workletInitializePost.data]);
       localWorker.postMessage(workerInitializePost, [workerInitializePost.data.port]);
       streamNode.connect(processorNode);
       processorNode.connect(destNode);
-      setLocalStream(destNode.stream);
+      console.log("setLocalStream");
+      if(destNode.stream){
+        setLocalStream(destNode.stream);
+      }else {
+        console.log("destNode:" + destNode);
+        console.log("destNode.stream" + destNode.stream);
+      }
     })();
   },[currentUser]);
 
-  useEffect(() => {
-    (async (): Promise<void> => {
-      if(!peer) return;
-      if(!localStream) return;
-      let room;
-      peer.on("open", async (id) => {
-        room = peer.joinRoom(roomId, {
-          mode: "mesh",
-          stream: localStream,
-        });
-        const newPeer: PeerEntity = {
-          id: id,
-          userId: currentUser?.id.toString() || "",
-          isMute: false,
-          stream: null,
-          playState: "stop",
-          volume: 1.0,
-        };
-        dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId, peer: newPeer, isLocal: true }));
-        room.once("open", () => {
-          console.log("=== You joined ===\n");
-          dispatch(roomPeerSlice.actions.updateByPeerId({
-             roomId: roomId, peerId: id, updateData:{
-                stream: localStream,
-                playState: "stop",
-              }, 
-            }));
-        });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        room.on("peerJoin", (peerId: any) => {
-          console.log(`=== ${peerId} joined ===\n`);
-        });
-  
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        room.on("stream", async (stream: any) => {
-          console.log("stream");
-          if (stream.peerId == currentUser?.uid) {
-            return;
-          }
-          const authToken = LoginController.getInfomation().authToken;
-
-          const api = getVoiceChatApi(authToken);
-          const user = await api.getApiUsersUserId({ userId: stream.peerId });
-          if (!user) return;
-          dispatch(userSlice.actions.addOrUpdateUser({ newUser: { ...user, uid: stream.peerId } }));
-  
-          const newPeer: PeerEntity = {
-            id: stream.peerId,
-            userId: user.id.toString(),
-            isMute: false,
-            stream: stream,
-            playState: "start",
-          };
-          dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId! as string, peer: newPeer, isLocal: false }));
-  
-        });
-        // for closing room members
-        room.on("peerLeave", (peerId) => {
-          dispatch(roomPeerSlice.actions.updateByPeerId({ roomId: roomId!,peerId, updateData: { playState: "stop" } }));
-          dispatch(roomPeerSlice.actions.removePeer({ roomId: roomId!, peerId: peerId }));
-          console.log(`=== ${peerId} left ===\n`);
-        });
-  
-        // for closing myself
-        room.once("close", () => {
-          console.log("== You left ===\n");
-          currentPeers.forEach((peer) => {
-            const newPeer = Object.assign(peer, { playState: "stop" });
-            dispatch(roomPeerSlice.actions.addOrUpdatePeer({ roomId: roomId!, peer: newPeer, isLocal: false }));
-          });
-        });
-      });
-    })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, router, dispatch, localStream, peer]);
-
-  useEffect(() => {
-    (async (): Promise<void> => {
-      if (peer) {
-        //await localStreamSetting();
-      }
-    })();
-  }, [peer]);
 
   const renderLocalRoom =  useCallback((): JSX.Element | void=> {
     if(currentUser && localPeer){
@@ -245,10 +240,10 @@ const Room = (props: {rid: string}): JSX.Element => {
         volume: localVolume,
         playState: localPlayState,
         onClickSpeaker: ()=>{
-          if(localPlayState === "start") {
-            setLocalPlayState("stop");
+          if(localVolume > 0) {
+            setLocalVolume(0.0);
           }else{
-            setLocalPlayState("start");
+            setLocalVolume(1.0);
           }
         },
       };
@@ -271,8 +266,14 @@ const Room = (props: {rid: string}): JSX.Element => {
               isMute: peer.isMute,
               isVoicing: false,
               stream: peer.stream,
-              volume: 1.0,
+              volume: peer.volume,
               playState: "start",
+              onClickSpeaker: ()=>{
+                if(peer.id){
+                  const volume = peer.volume > 0 ? 0.0 : 1.0;
+                  dispatch(roomPeerSlice.actions.updateByPeerId({ roomId: roomId!,peerId: peer.id, updateData: { volume } }));
+                }
+              },
             };
             return (
               <RoomUserCard key={peer.userId} {...props}  ></RoomUserCard>

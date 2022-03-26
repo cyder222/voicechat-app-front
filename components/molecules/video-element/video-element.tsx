@@ -24,6 +24,12 @@ const Video = ({ customSrcObject, playState, ...props }: VideoProps): JSX.Elemen
     );
 
     useEffect(()=>{
+        if(node){
+            node.volume = props.volume;
+        }
+    },[props.volume, node]);
+
+    useEffect(()=>{
             const asyncPlay = async (): Promise<void>=>{
                 try{
                     await node?.play();
