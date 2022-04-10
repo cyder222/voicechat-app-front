@@ -38,3 +38,16 @@ masterにマージしてpushすると、自動的にデプロイされます。
 ルーム：https://voicechat-app-front.vercel.app/room/bc6296-c7c9d8-3c2369
 
 で確認できます
+
+### モデルの変更など
+モデルを使った処理は、
+```
+workers/worker-audio.worker.ts
+```
+に入ってます。
+
+またモデルファイルは、
+
+workers/lib/ppgvc_*.onnx
+
+という形式で入れてます。
