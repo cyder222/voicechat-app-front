@@ -185,7 +185,11 @@ const Room = (props: {rid: string}): JSX.Element => {
       if (currentUser == null) return;
       if( currentUser.name == "") return;
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: {
+          echoCancellationType: "system",
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
         video: false,
       });
       console.log("worker start");

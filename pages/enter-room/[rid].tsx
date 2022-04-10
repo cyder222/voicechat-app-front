@@ -48,7 +48,11 @@ export default  function EnterRoom(props:{rid: string}): JSX.Element {
 
   const localStreamSetting = async (): Promise<void> => {
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
+      audio: {
+        echoCancellationType: "system",
+        echoCancellation: true,
+        noiseSuppression: true,
+      },
       video: false,
     });
     setLocalStreamProvider(stream);
