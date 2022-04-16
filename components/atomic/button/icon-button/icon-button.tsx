@@ -3,6 +3,8 @@ import styled from "styled-components";
 
 interface OwnProps {
   src: string;
+  srcSelected?: string;
+  selected?: boolean;
   onClick?: (e: Event) => void;
   width: number | string;
   height: number | string;
@@ -25,10 +27,10 @@ const IconWrapper = styled.div`
   }};
 `;
 
-const IconButton = ({ src, width, height, onClick }: Props): JSX.Element => {
+const IconButton = ({ src, width, height, onClick, selected, srcSelected }: Props): JSX.Element => {
   return (
     <IconWrapper onClick={onClick} width={width} height={height}>
-      <Icon src={src}></Icon>
+      <Icon src={selected  ? srcSelected : src}></Icon>
     </IconWrapper>
   );
 };
