@@ -6,6 +6,13 @@ interface ThemeColor {
     textColor?: string;
     accentColor?: string;
     accentColor2?: string;
+    voicePageBgColor?: string;
+    voicePageNormalColor?: string;
+    voicePageLightColor?: string;
+    voicePageSubTextColor?: string;
+    voicePageTextColor?: string;
+    voicePageAccentColor?: string;
+    voicePageAccentColor2?: string;
 }
 
 const darkTheme: ThemeColor = {
@@ -16,16 +23,30 @@ const darkTheme: ThemeColor = {
     lightColor: "#2F3136",
     accentColor: "#EA4C89",
     accentColor2: "#4CEAC4",
+    voicePageBgColor: "#0A0A0B",
+    voicePageTextColor: "#fff",
+    voicePageSubTextColor: "#fff",
+    voicePageNormalColor: "#202225",
+    voicePageLightColor: "#2F3136",
+    voicePageAccentColor: "#EA4C89",
+    voicePageAccentColor2: "#4CEAC4",
 };
   
 const lightTheme: ThemeColor = {
-    bgColor: "#0A0A0B",
+    bgColor: "#FFF",
     textColor: "#000000",
     subTextColor: "#9E9EA0",
     normalColor: "#EDF0F5",
     lightColor: "#F9F8FD",
     accentColor: "#EA4C89",
     accentColor2: "#4CEAC4",
+    voicePageBgColor: "#0A0A0B",
+    voicePageTextColor: "#fff",
+    voicePageSubTextColor: "#fff",
+    voicePageNormalColor: "#202225",
+    voicePageLightColor: "#2F3136",
+    voicePageAccentColor: "#EA4C89",
+    voicePageAccentColor2: "#4CEAC4",
 };
 
 export { darkTheme, lightTheme };

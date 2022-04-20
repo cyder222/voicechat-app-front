@@ -26,11 +26,12 @@ import { userSelector } from "../redux/db/user/selectors";
 import userSlice from "../redux/db/user/slice";
 import { prepareSSP } from "../util/ssp/prepareFetch";
 
+
 const MainViewWrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  background: linear-gradient(to bottom, #edf0f5, #fff);
+  background: linear-gradient(to bottom, ${(props): string => {return props.theme.normalColor;}}, ${(props): string => {return props.theme.bgColor;}} );
   height: 576px;
 `;
 const MainViewImageWrapper = styled.div`

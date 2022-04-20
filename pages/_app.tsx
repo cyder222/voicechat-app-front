@@ -1,9 +1,10 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
 import React, { FC } from "react";
-import { createGlobalStyle } from "styled-components";
+import { ThemeProvider, createGlobalStyle } from "styled-components";
 import { Reset } from "styled-reset";
 import wrapper from "../redux/create-store";
+import { lightTheme } from "../theme/theme";
 
 const GlobalStyles = createGlobalStyle`
   button {
@@ -24,8 +25,10 @@ const MyApp  = ({ Component, pageProps }: AppProps): JSX.Element =>
         />
       </Head>
       <Reset />
-      <GlobalStyles />
-      <Component {...pageProps} />;
+      <ThemeProvider theme={lightTheme}>
+        <GlobalStyles />
+        <Component {...pageProps} />;
+      </ThemeProvider>
     </div>
   );
 };
