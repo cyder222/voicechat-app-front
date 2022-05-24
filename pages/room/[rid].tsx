@@ -24,11 +24,14 @@ const MainViewWrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  padding: 16px 8px 0px 8px;
+  background-color: ${(props): string => {return props.theme.voicePageBgColor;}};
 `;
 
 const VoiceChatViewWrapper = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: column;
 `;
 const SideViewWrapper = styled.div`
@@ -37,14 +40,21 @@ const SideViewWrapper = styled.div`
 `;
 
 const VoiceChatTitle = styled.div`
-  &::before{
-    content: '';
-    background: url('') no-repeat; 
-    background-size: contain;
-  }
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 10px;
+  width: 100%;
+  height: 32px;
+  color:  ${(props): string => {return props.theme.voicePageTextColor;}};
+  background-color:  ${(props): string => {return props.theme.voicePageNormalColor;}};
 `;
 
-const VoiceChatPeers = styled.div``;
+const VoiceChatPeers = styled.div`
+  display: flex;
+`;
 
 const TextChatViewWrapper = styled.div`
   display: flex;
@@ -256,10 +266,16 @@ const Room = (props: {rid: string}): JSX.Element => {
       );
   }},[localPeer, currentUser, localPlayState, localVolume]);
   return (
-    <MainViewWrapper maxWidth="lg">
+    <MainViewWrapper>
       <VoiceChatViewWrapper>
         <VoiceChatTitle>{currentRoom.title}</VoiceChatTitle>        
         <VoiceChatPeers>
+          {
+              renderLocalRoom()
+          }
+          {
+              renderLocalRoom()
+          }
           {
               renderLocalRoom()
           }

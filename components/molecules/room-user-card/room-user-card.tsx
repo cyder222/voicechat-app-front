@@ -11,21 +11,35 @@ const CardWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 8px 16px;
-
-  background: #F9F8FD;
+  height: calc(width * 0.75);
+  width: 100%;
+  background: #251B3C;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 10px;
 `;
-const Name = styled.div``;
+const Name = styled.div`
+  color: white;
+`;
 const UserImage = styled.img`
   width: 100%;
   max-width: 160px;
   padding: 24px;
 `;
-const FlexRow = styled.div`
+const LowerRow = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 16px;
+  justify-content: flex-start;
+  gap: 24px;
+  padding: 0px;
+  width: 100%;
+  line-height: 150%;
+`;
+const UpperRow = styled.div`
+  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  padding: 0px;
+  width: 100%;
 `;
 
 export interface RoomUserCardProps {
@@ -41,19 +55,23 @@ export interface RoomUserCardProps {
   onClickSpeaker?: ()=>void;
   onClickSetting?: ()=>void;
   onChangeActor?: ()=>void;
+  onClickPin?: ()=>void;
 }
 
 export const RoomUserCard = (props: RoomUserCardProps): JSX.Element => {
   const user = useSelector((state: StoreState) => {return userSelector.getById(state, props.userId);});
   return(
   <CardWrapper>
-    <Name>{user?.name}</Name>
+    <UpperRow>
+      <IconButton onClick={(): void=>{props.onClickSpeaker?.();}} src={"/img/pin-white.svg"} width={"24px"} height={"24px"}></IconButton>
+      <IconButton onClick={(): void=>{props.onClickSetting?.();}} src={"/img/setting-white-btn.svg"} width={"24px"} height={"24px"}></IconButton>
+    </UpperRow>
     <UserImage src={props.image != null ? props.image : "/img/default-user.png"}></UserImage>
     <VideoElement volume={props.volume} customSrcObject={props.stream} playState={props.playState}></VideoElement>
-    <FlexRow>
-      <IconButton onClick={(): void=>{props.onClickSpeaker?.();}} src={props.volume > 0 ?  "/img/speaker-normal.svg" : "/img/speaker-disable.svg"} width={"48px"} height={"48px"}></IconButton>
-      <IconButton src={"/img/setting_btn.svg"} width={"48px"} height={"48px"}></IconButton>
-    </FlexRow>
+    <LowerRow>
+      <IconButton onClick={(): void=>{props.onClickSpeaker?.();}} src={props.volume > 0 ?  "/img/speaker-white-normal.svg" : "/img/speaker-white-disable.svg"} width={"24px"} height={"24px"}></IconButton>
+      <Name>{user?.name}</Name>
+    </LowerRow>
   </CardWrapper>
   );
 };
