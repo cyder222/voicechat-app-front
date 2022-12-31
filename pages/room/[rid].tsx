@@ -1,4 +1,5 @@
 import { Input } from "@material-ui/core";
+import { boolean, leftShift } from "mathjs";
 import { useRouter } from "next/router";
 import { parseCookies } from "nookies";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -25,6 +26,7 @@ const MainViewWrapper = styled.div`
   flex-direction: row;
   width: 100%;
   height: 100%;
+  background-color: #000;
 `;
 
 const VoiceChatViewWrapper = styled.div`
@@ -34,7 +36,22 @@ const VoiceChatViewWrapper = styled.div`
 const SideViewWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  width: ${(props)=> props.show ? 200 : 0}px
 `;
+
+SideViewWrapper.defaultProps = {
+  show: false
+}
+
+const SettingWindowHead = styled.div``;
+
+const SettingWindowBody = styled.div``;
+
+const chatViewBody = styled.div``;
+const chatBalloon = styled.div``;
+chatBalloon.defaultProps = {
+  avatorDirection: "left"
+}
 
 const VoiceChatTitle = styled.div`
   &::before{
@@ -42,6 +59,7 @@ const VoiceChatTitle = styled.div`
     background: url('') no-repeat; 
     background-size: contain;
   }
+  background-color: #E5E5E5;
 `;
 
 const VoiceChatPeers = styled.div``;
@@ -77,6 +95,7 @@ const Room = (props: {rid: string}): JSX.Element => {
   const [worker, setWorker] = useState<Worker | null>(null);
   const [audioContext, setAudioContext ] = useState<AudioContext | null>(null);
   const [jvsNo, setJvsNo] = useState<number>(1);
+  const [sideViewVisible, setSideViewVisible ] = useState<boolean>(false);
 
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -192,10 +211,8 @@ const Room = (props: {rid: string}): JSX.Element => {
         },
         video: false,
       });
-      console.log("worker start");
       const localWorker = new Worker(new URL("../../workers/worker-audio.worker.ts", import.meta.url));
       setWorker(localWorker);
-      console.log("set worker");
       const context = new AudioContext({ sampleRate: 16000 });
       setAudioContext(context);
       context.resume();
@@ -285,7 +302,7 @@ const Room = (props: {rid: string}): JSX.Element => {
           })}
         </VoiceChatPeers>
       </VoiceChatViewWrapper>
-      <SideViewWrapper>
+      <SideViewWrapper show={sideViewVisible}>
       <select onChange={(e):void => {
         setJvsNo(Number(e.target.value));
       }}>

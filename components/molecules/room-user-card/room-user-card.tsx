@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { User } from "../../../codegen/api/fetch/models/User";
 import { StoreState } from "../../../redux/create-store";
 import { userSelector } from "../../../redux/db/user/selectors";
+import { UserEntity } from "../../../redux/db/user/slice";
 import IconButton from "../../atomic/button/icon-button/icon-button";
 import VideoElement from "../video-element/video-element";
 
@@ -29,7 +31,7 @@ const FlexRow = styled.div`
 `;
 
 export interface RoomUserCardProps {
-  userId: number;
+  user: UserEntity;
   image?: string | null;
   volume: number;
   isMute: boolean;
@@ -44,7 +46,7 @@ export interface RoomUserCardProps {
 }
 
 export const RoomUserCard = (props: RoomUserCardProps): JSX.Element => {
-  const user = useSelector((state: StoreState) => {return userSelector.getById(state, props.userId);});
+  const user = props.user;
   return(
   <CardWrapper>
     <Name>{user?.name}</Name>

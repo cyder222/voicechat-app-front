@@ -28,7 +28,10 @@ export default function Loging(props:{retUrl: string}): JSX.Element {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       login page
-      <a href={`${config.url.API_BASE_URL}/auth/google_oauth2?return_to=${encodeURIComponent(urlOrigin)}`}>ログイン</a>
+      <form method="post" action={`${config.url.API_BASE_URL}/auth/google_oauth2?return_to=${encodeURIComponent(urlOrigin)}`}>
+        <button type="submit" value="ログイン">ログインします</button>
+      </form>
+      
       <footer className={styles.footer}>
         <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
