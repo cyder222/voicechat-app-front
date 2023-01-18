@@ -12,7 +12,7 @@ export default {
 
   const Template: ComponentStory<typeof RoundCornerButton> = (args) => <RoundCornerButton {...args} />;
 
-  
+
 export const Primary = Template.bind({});
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 Primary.args = {

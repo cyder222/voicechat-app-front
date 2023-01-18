@@ -1,4 +1,4 @@
-import React from "react";
+import React, { CSSProperties } from "react";
 import styled from "styled-components";
 
 interface OwnProps {
@@ -8,7 +8,7 @@ interface OwnProps {
   height: number | string;
 }
 
-type Props = OwnProps;
+type Props = OwnProps & CSSProperties;
 
 const Icon = styled.img`
   width: 100%;
@@ -25,9 +25,11 @@ const IconWrapper = styled.div`
   }};
 `;
 
-const IconButton = ({ src, width, height, onClick }: Props): JSX.Element => {
+const IconButton = ({ src, width, height, onClick, backgroundColor }: Props): JSX.Element => {
   return (
-    <IconWrapper onClick={onClick} width={width} height={height}>
+    <IconWrapper onClick={onClick} width={width} height={height} style={{
+      backgroundColor
+    }}>
       <Icon src={src}></Icon>
     </IconWrapper>
   );
